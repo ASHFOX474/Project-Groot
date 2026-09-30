@@ -19,3 +19,4 @@ apps/mobile/ios/Flutter/flutter_export_environment.sh
 *.p12
 db-data/
 photos/
+flutter
