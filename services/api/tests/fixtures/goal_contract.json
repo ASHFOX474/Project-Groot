@@ -1,0 +1,25 @@
+{
+  "request": {
+    "language": "en",
+    "goal": "Grow crops / ফসল চাষ",
+    "category": "crop",
+    "location": {"precision": "district", "country_code": "BD", "district": "Dhaka"},
+    "growing_context": "open_ground",
+    "area_m2": 2.0,
+    "sunlight": "full_sun",
+    "soil": {"description": "Self-reported soil", "ph": 6.5, "texture": "loam", "drainage": "well_drained"},
+    "planting_date": "2026-10-04",
+    "temperature_c": 25.0
+  },
+  "empty_response": {
+    "status": "no_reviewed_data",
+    "language": "en",
+    "message": "No approved plant profiles are available yet. Demo or draft data will not be used.",
+    "next_steps": [
+      "Try again after rights-cleared, locally reviewed profiles are added.",
+      "Condition matching is not a survival/yield guarantee. Free-text goals and soil descriptions are not automatically interpreted."
+    ],
+    "recommendations": [],
+    "rules_version": "2026-10-04-v1"
+  }
+}

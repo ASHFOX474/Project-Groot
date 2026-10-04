@@ -5,6 +5,9 @@ from app.main import create_app
 
 
 class FakeCatalogRepository:
+    def list_recommendation_candidates(self) -> list[dict]:
+        return []
+
     def ping(self) -> None:
         return None
 
@@ -22,6 +25,9 @@ class FakeCatalogRepository:
 
 
 class UnavailableCatalogRepository:
+    def list_recommendation_candidates(self) -> list[dict]:
+        raise RuntimeError('No database')
+
     def ping(self) -> None:
         raise RuntimeError("No database")
 
@@ -46,6 +52,7 @@ def test_catalog_marks_sample_as_demo() -> None:
     assert response.status_code == 200
     assert response.json()[0]["evidence_status"] == "demo"
     assert response.json()[0]["common_name_bn"] == "নিম"
+    assert TestClient(app).get('/v1/catalog/recommendation-candidates').json() == []
 
 
 def test_database_failure_returns_service_unavailable() -> None:
@@ -55,3 +62,4 @@ def test_database_failure_returns_service_unavailable() -> None:
 
     assert client.get("/health/ready").status_code == 503
     assert client.get("/v1/catalog/species").status_code == 503
+    assert client.get('/v1/catalog/recommendation-candidates').status_code == 503

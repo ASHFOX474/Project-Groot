@@ -1,0 +1,45 @@
+{
+  "profile_id": "test-profile",
+  "language": "en",
+  "weeks": 2,
+  "status": "partial",
+  "message": "Partial plan—read the gaps.",
+  "common_name_bn": "পরীক্ষার গাছ",
+  "common_name_en": "Test plant",
+  "species_id": "test-plant",
+  "profile_reviewed_at": "2026-01-01",
+  "valid_until": "2028-01-01",
+  "generator_version": "reviewed-care-v1",
+  "evidence_fingerprint": "synthetic-contract-only",
+  "disclaimer": "Synthetic test contract, not agricultural advice.",
+  "suitability_reasons": ["Synthetic matching conditions"],
+  "condition_sources": [],
+  "instructions": [
+    {
+      "guidance_ids": ["care-water"],
+      "topic": "watering",
+      "week_start": 1,
+      "week_end": 2,
+      "starts_on": "2026-10-05",
+      "ends_on": "2026-10-18",
+      "instruction": "Synthetic reviewed instruction only",
+      "reviewed_by": "Test reviewer",
+      "reviewed_at": "2026-01-01",
+      "valid_until": "2028-01-01",
+      "sources": [{
+        "key": "care:care-water",
+        "source_title": "Synthetic care source",
+        "source_url": "https://example.org/care",
+        "source_locator": "Test section 1",
+        "interpretation_note": "Synthetic test content only",
+        "checked_at": "2026-01-01",
+        "valid_until": "2028-01-01",
+        "license_name": "CC0 test fixture",
+        "license_url": "https://example.org/rights",
+        "attribution": "Synthetic test reviewer"
+      }]
+    }
+  ],
+  "issues": [{"code": "missing_guidance", "topic": "nutrition", "weeks": [1, 2],
+    "message": "No reviewed nutrition guidance; nothing invented.", "guidance_ids": [], "sources": []}]
+}
