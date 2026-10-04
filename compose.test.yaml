@@ -1,0 +1,31 @@
+# Standalone test project: no dev .env, host ports, init mounts or persistent volumes.
+services:
+  db:
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    environment:
+      POSTGRES_DB: groot_tests
+      POSTGRES_USER: groot_test
+      POSTGRES_PASSWORD: test_only
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U groot_test -d groot_tests"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  tests:
+    build:
+      context: ./services/api
+      target: test
+      additional_contexts:
+        legacy_init: ./db/init
+    environment:
+      TEST_DATABASE_URL: postgresql://groot_test:test_only@db:5432/groot_tests
+      COVERAGE_FILE: /tmp/.coverage
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "pytest", "-p", "no:cacheprovider", "--cov=app", "--cov=migrations", "--cov-report=term-missing", "--cov-fail-under=90"]
