@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'catalog.dart';
+import 'private_garden.dart';
 
 void main() => runApp(const GrootApp());
 
@@ -54,7 +55,14 @@ class _CatalogPageState extends State<CatalogPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Groot')),
+        appBar: AppBar(title: const Text('Groot'), actions: [
+          IconButton(
+              tooltip: 'My plants · private accounts',
+              icon: const Icon(Icons.account_circle_outlined),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                      builder: (_) => const PrivateGarden()))),
+        ]),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -67,7 +75,7 @@ class _CatalogPageState extends State<CatalogPage> {
                 const Text('A starting catalog for plant care in Bangladesh.'),
                 const SizedBox(height: 8),
                 const Text(
-                  'Sample entries below are for app setup only. They are not planting recommendations.',
+                  'Catalog entries are for browsing only. They are not planting recommendations.',
                 ),
                 const SizedBox(height: 20),
                 Expanded(
@@ -84,14 +92,17 @@ class _CatalogPageState extends State<CatalogPage> {
                             children: [
                               const Text('Catalog could not be loaded.'),
                               const SizedBox(height: 8),
-                              TextButton(onPressed: _retry, child: const Text('Retry')),
+                              TextButton(
+                                  onPressed: _retry,
+                                  child: const Text('Retry')),
                             ],
                           ),
                         );
                       }
                       final items = snapshot.data ?? [];
                       if (items.isEmpty) {
-                        return const Center(child: Text('No plants in the catalog yet.'));
+                        return const Center(
+                            child: Text('No plants in the catalog yet.'));
                       }
                       return ListView.separated(
                         itemCount: items.length,
@@ -99,8 +110,10 @@ class _CatalogPageState extends State<CatalogPage> {
                         itemBuilder: (context, index) {
                           final item = items[index];
                           return ListTile(
-                            title: Text('${item.banglaName} · ${item.englishName}'),
-                            subtitle: Text('${item.category} · ${item.sourceTitle}'),
+                            title: Text(
+                                '${item.banglaName} · ${item.englishName}'),
+                            subtitle:
+                                Text('${item.category} · ${item.sourceTitle}'),
                             trailing: item.evidenceStatus == 'demo'
                                 ? const Chip(label: Text('Demo'))
                                 : null,
