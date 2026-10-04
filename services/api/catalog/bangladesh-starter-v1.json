@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "bundle_id": "bangladesh-starter-v1",
+  "sources": [
+    {
+      "id": "treegoer-2024-07",
+      "title": "TreeGOER: Tree Globally Observed Environmental Ranges, version 2024.07",
+      "publisher": "CIFOR-ICRAF / Roeland Kindt; archived by Zenodo",
+      "source_url": "https://zenodo.org/records/13132613",
+      "checked_at": "2026-10-04",
+      "review_status": "reviewed",
+      "access_status": "public",
+      "reuse_status": "open_license",
+      "license_name": "CC-BY-4.0",
+      "license_url": "https://zenodo.org/api/records/13132613",
+      "rights_note": "Exact record API reports access_right=open and license.id=cc-by-4.0 for version2024.07. Metadata/file inventory only inspected; no bulk dataset imported. This grant does not license the separate Agroforestree2009 PDF.",
+      "attribution": "Kindt R, TreeGOER version2024.07, DOI10.5281/zenodo.13132613; cite the accompanying article DOI10.1111/gcb.16914 when using its data. No environmental quantiles converted to care requirements here.",
+      "reviewed_by": "Codex exact-version metadata check; environmental interpretation still pending",
+      "valid_until": "2027-01-02"
+    },
+    {
+      "id": "barc-afaci-handbook",
+      "title": "Hand Book of Agricultural Technology",
+      "publisher": "Bangladesh Agricultural Research Council / AFACI",
+      "source_url": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-barc/2024/12/053a0722429448d4903412ce683a7d06.pdf",
+      "checked_at": "2026-10-04",
+      "review_status": "reviewed",
+      "access_status": "public",
+      "reuse_status": "permission_pending",
+      "license_name": null,
+      "license_url": null,
+      "rights_note": "Public PDF inspected. No artifact-specific redistribution/adaptation permission verified. Calendar portal terms do not establish this handbook's license. Only a small independent factual research draft is recorded; no prose, images or pesticide instructions copied.",
+      "attribution": "BARC / AFACI, Hand Book of Agricultural Technology, crops chapters; numeric facts normalized by Groot. See per-field page locators.",
+      "reviewed_by": "Codex source-evidence check; not an agronomist or rights holder",
+      "valid_until": "2027-01-02"
+    },
+    {
+      "id": "icraf-aft-neem-2009",
+      "title": "Agroforestree Database 4.0: Azadirachta indica",
+      "publisher": "World Agroforestry Centre (ICRAF)",
+      "source_url": "https://apps.worldagroforestry.org/treedb/AFTPDFS/Azadirachta_indica.pdf",
+      "checked_at": "2026-10-04",
+      "review_status": "reviewed",
+      "access_status": "public",
+      "reuse_status": "permission_pending",
+      "license_name": null,
+      "license_url": null,
+      "rights_note": "The actual version 4.0 factsheet has no verified reuse grant. A different-version CC BY listing cannot license this PDF. Small factual research draft only; no photos/prose copied.",
+      "attribution": "Orwa C, Mutua A, Kindt R, Jamnadass R, Simons A (2009), Agroforestree Database 4.0, World Agroforestry Centre. Facts normalized by Groot.",
+      "reviewed_by": "Codex source-evidence check; not a Bangladesh forestry expert or rights holder",
+      "valid_until": "2027-01-02"
+    }
+  ],
+  "plants": [
+    {
+      "id": "bd-okra",
+      "common_name_en": "Okra",
+      "common_name_bn": "ঢেঁড়স",
+      "scientific_name": "Abelmoschus esculentus",
+      "category": "crop",
+      "source_id": "barc-afaci-handbook",
+      "profiles": [{
+        "id": "bd-okra-field-v1",
+        "country_code": "BD",
+        "locality": "Bangladesh: general handbook field context, no district claim",
+        "growing_context": "open_ground",
+        "variety": "general cultivation section; not cultivar-specific",
+        "review_status": "draft",
+        "limitations": "Historical field guidance awaiting rights and current agronomic review. Not container, saline/coastal or district-specific advice. Sunlight, water quantity and plot suitability remain unknown. Scientific name spelling normalized, not copied from the handbook typo.",
+        "requirements": [
+          {"key": "soil_ph", "value": {"min": 6.0, "max": 6.8}, "source_id": "barc-afaci-handbook", "source_locator": "Printed p91 / PDF page105 (1-based), section 5.2 Climate and soil", "interpretation_note": "Reported optimum soil range; requires actual soil information and renewed review."},
+          {"key": "soil_texture", "value": ["sandy_loam", "clay_loam"], "source_id": "barc-afaci-handbook", "source_locator": "Printed p91 / PDF page105 (1-based), section 5.2 Climate and soil", "interpretation_note": "Preferred field textures in this source; not a container potting mixture."},
+          {"key": "spacing_cm", "value": {"row": 60, "plant": 30}, "source_id": "barc-afaci-handbook", "source_locator": "Printed p92 / PDF page106 (1-based), Seed sowing/planting", "interpretation_note": "General field spacing, not the separate early-crop layout and not pot dimensions."},
+          {"key": "sowing_windows", "value": [{"start_month": 2, "start_day": 15, "end_month": 3, "end_day": 15}, {"start_month": 6, "start_day": 15, "end_month": 7, "end_day": 31}], "source_id": "barc-afaci-handbook", "source_locator": "Printed p91 / PDF page105 (1-based), Time of sowing", "interpretation_note": "Approximate mid-month wording normalized to day15 for this draft; end of July normalized to day31. These are not validated precise planting deadlines."}
+        ]
+      }]
+    },
+    {
+      "id": "bd-winter-tomato",
+      "common_name_en": "Winter tomato",
+      "common_name_bn": "শীতকালীন টমেটো",
+      "scientific_name": "Solanum lycopersicum",
+      "category": "crop",
+      "source_id": "barc-afaci-handbook",
+      "profiles": [{
+        "id": "bd-winter-tomato-field-v1",
+        "country_code": "BD",
+        "locality": "Bangladesh: general winter field guidance, no district claim",
+        "growing_context": "open_ground",
+        "variety": "winter cultivation only; not summer hybrid guidance",
+        "review_status": "draft",
+        "limitations": "Rights and current agronomic review pending. Not summer-tunnel, container or district-specific advice. Do not derive irrigation/fertilizer doses, sunlight hours or saline tolerance from omitted fields.",
+        "requirements": [
+          {"key": "soil_ph", "value": {"min": 6.5, "max": 7.0}, "source_id": "barc-afaci-handbook", "source_locator": "Printed p75 / PDF page89 (1-based), section 1.2 Climate, land and soil", "interpretation_note": "Reported winter production optimum; no automatic liming instruction."},
+          {"key": "temperature_c", "value": {"min": 20, "max": 25}, "source_id": "barc-afaci-handbook", "source_locator": "Printed p75 / PDF page89 (1-based), section 1.2 Climate, land and soil", "interpretation_note": "Winter production optimum in this historical source; not a germination or absolute survival limit."},
+          {"key": "spacing_cm", "value": {"row": 60, "plant": 40}, "source_id": "barc-afaci-handbook", "source_locator": "Printed p75 / PDF page89 (1-based), Transplanting method", "interpretation_note": "Main-field transplant spacing, not nursery-bed spacing."},
+          {"key": "sowing_windows", "value": [{"start_month": 9, "start_day": 1, "end_month": 10, "end_day": 31}], "source_id": "barc-afaci-handbook", "source_locator": "Printed p75 / PDF page89 (1-based), Time of sowing", "interpretation_note": "Whole-month winter seed-sowing window; do not substitute for transplanting dates."}
+        ]
+      }]
+    },
+    {
+      "id": "bd-neem-reference",
+      "common_name_en": "Neem",
+      "common_name_bn": "নিম",
+      "scientific_name": "Azadirachta indica",
+      "category": "tree",
+      "source_id": "icraf-aft-neem-2009",
+      "profiles": [{
+        "id": "bd-neem-ground-draft-v1",
+        "country_code": "BD",
+        "locality": "Bangladesh candidate only; source ecology is global, local applicability unverified",
+        "growing_context": "forestry",
+        "variety": "not_specified",
+        "review_status": "draft",
+        "limitations": "Not a native-status assertion or a Bangladesh planting recommendation. Site, root clearance, mature size, planting season and local forestry suitability need expert review. No rooftop/container suitability or irrigation volume established.",
+        "requirements": [
+          {"key": "soil_ph", "value": {"min": 6.2, "max": 7.0}, "source_id": "icraf-aft-neem-2009", "source_locator": "Printed/PDF p2, Soil type", "interpretation_note": "Global source's preferred range, not a Bangladesh site measurement."},
+          {"key": "drainage", "value": "well_drained", "source_id": "icraf-aft-neem-2009", "source_locator": "Printed/PDF p2, Ecology and Soil type", "interpretation_note": "Normalized from waterlogging intolerance; local establishment conditions still unknown."},
+          {"key": "sunlight", "value": "full_sun", "source_id": "icraf-aft-neem-2009", "source_locator": "Printed/PDF p2, Ecology", "interpretation_note": "Normalized from strong light demand. Source does not quantify daily sun hours."}
+        ]
+      }]
+    }
+  ]
+}

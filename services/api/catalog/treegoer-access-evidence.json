@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-10-04",
+  "method": "Direct public HTTPS GET; no login; HTTP200. Independent metadata summary, not a full cached dataset.",
+  "metadata_url": "https://zenodo.org/api/records/13132613",
+  "record_url": "https://zenodo.org/records/13132613",
+  "doi": "10.5281/zenodo.13132613",
+  "version": "2024.07",
+  "publication_date": "2024-07-30",
+  "access_right": "open",
+  "license_id": "cc-by-4.0",
+  "selected_artifact": {
+    "filename": "TreeGOER_CMI_2024.txt",
+    "bytes": 2332517,
+    "publisher_checksum": "md5:4a327031011f7a172addec958c87a401",
+    "content_url": "https://zenodo.org/api/records/13132613/files/TreeGOER_CMI_2024.txt/content",
+    "downloaded_and_checksum_verified": false
+  },
+  "limitations": "Do not reuse this license assertion for a different work/version. Observed ecological distributions are not cultivation optimums or irrigation schedules. Actual field mapping and Bangladesh applicability are not approved. Recheck access/rights before a later import."
+}
