@@ -1,0 +1,13 @@
+#!/bin/sh
+# Prefer the user's existing SDK; never install, upgrade, or delete it.
+set -eu
+groot_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ -n "${GROOT_FLUTTER_BIN:-}" ]; then
+  exec "$GROOT_FLUTTER_BIN" "$@"
+elif [ -x "$groot_root/flutter/bin/flutter" ]; then
+  exec "$groot_root/flutter/bin/flutter" "$@"
+elif command -v flutter >/dev/null 2>&1; then
+  exec flutter "$@"
+fi
+printf '%s\n' 'Flutter not found. Set GROOT_FLUTTER_BIN or install Flutter separately.' >&2
+exit 1

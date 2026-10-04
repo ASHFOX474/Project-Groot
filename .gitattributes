@@ -1,0 +1,2 @@
+# Keep the generated Windows launcher CRLF on checkout, LF in Git for clean diffs.
+/apps/mobile/android/gradlew.bat text eol=crlf

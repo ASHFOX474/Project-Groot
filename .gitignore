@@ -1,4 +1,6 @@
 .env
+.env.*
+!.env.example
 .venv/
 __pycache__/
 *.py[cod]
@@ -19,4 +21,11 @@ apps/mobile/ios/Flutter/flutter_export_environment.sh
 *.p12
 db-data/
 photos/
-flutter
+backups/
+.coverage*
+htmlcov/
+# Local SDK: keep installed files, never treat them as a Git submodule.
+/flutter/
+.idea/
+*.iml
+services/api/*.egg-info/
