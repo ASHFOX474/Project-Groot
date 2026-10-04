@@ -4,9 +4,12 @@ These instructions apply to every AI coding agent working in this repository. Us
 
 ## Project identity and current state
 
-Groot helps Bangladeshi growers choose suitable plants, maintain care, and track survival. The repository currently contains a Flutter shell, a FastAPI catalog service, and a local PostgreSQL demo catalog. It does **not** yet contain deployed AI, authenticated accounts, weather care rules, offline synchronization, photo analysis, or rewards. Do not describe planned features as implemented.
+Groot helps Bangladeshi growers choose suitable plants, maintain care, and track survival. The repository contains Flutter catalog/account/passport/goal screens, a FastAPI catalog and private account/record/goal service, and PostgreSQL provenance/account/plant data. Local handle/password authentication, manual private care history and transient bilingual deterministic suitability rules exist. Approved catalog content is still pending. It does **not** yet contain deployed AI, email recovery/MFA, weather care rules, offline synchronization, photo analysis, public sharing or rewards. Do not describe planned features as implemented.
 
 Read `README.md`, `docs/PRODUCT.md`, and `docs/ARCHITECTURE.md` before changing a cross-cutting workflow.
+
+Reviewed directive-based care previews/private immutable versions now exist;
+approved care content remains pending. This is not LLM/weather quest generation.
 
 ## Every implementation task
 
@@ -43,6 +46,15 @@ Project instructions and the active user request take priority over a conflictin
 
 - Catalog rows shipped here are demo data. Record source, date checked, locality, and review status before using a crop or tree record for recommendations.
 - Plant recommendations must account for growing space, season, location, soil or potting conditions, and uncertainty. Do not infer plot-level soil conditions from a regional map.
+- Read `docs/GOALS_RECOMMENDATIONS.md` before goal/matcher changes. Preserve chosen
+  precision, transient processing and the approved-profile boundary. Never infer
+  structured conditions from free prose or convert field spacing into pot size.
+  Android speech needs disclosure and an editable/typing fallback; no audio/GPS
+  permission or storage is enabled by the current form.
+- Read `docs/CARE_PLANS.md` before care changes. Use reviewed directives and timing,
+  never inferred irrigation/doses. Preserve independent source gates, explicit
+  gap/conflict handling, immutable versions and withholding changed/expired advice.
+  Only explicit save retains structured conditions; no free goal/soil prose/audio.
 - Disease or nutrient analysis may flag **possible** symptoms and confidence; do not present a model output as a certain diagnosis. Provide a path to expert help for serious or uncertain cases.
 - Weather rules need forecast timestamp, location, and a safe fallback when data is stale or unavailable.
 - A photo can support evidence of visible plant condition or growth; it cannot prove every care action. Location tagging must be opt-in.
@@ -53,8 +65,22 @@ Project instructions and the active user request take priority over a conflictin
 
 - Review tables, relationships, constraints, existing rows, and migration order before changing schema.
 - Never edit a migration already applied to shared or production-like data. Add a new forward migration and a rollback plan.
+- Schema revisions live in `services/api/migrations/versions/`. Use the guarded
+  `scripts/db.sh` commands and read `docs/DATABASE_MIGRATIONS.md` before changes.
+  Never blindly stamp Alembic history or rerun `db/init` against existing data.
+- Run `scripts/check-db.sh` for schema/API integration changes. It owns a separate
+  temporary test project; never point tests at development/shared database URLs.
+- Read `docs/CATALOG_SOURCES.md` and `docs/CATALOG_IMPORT.md` before catalog changes.
+  Use the validated append-only importer; source evidence review, reuse permission
+  and agronomic approval are separate. Never feed `/v1/catalog/species` into
+  recommendation/RAG code or fall back to demo data when candidates are empty.
 - Do not remove or recreate data without explicit user authorization.
-- Validate input at the API boundary. Enforce permissions on the server when accounts are added; Flutter UI checks are not authorization.
+- Validate input at the API boundary. Private operations must resolve and recheck
+  the session inside the owner-scoped transaction; Flutter UI checks are not
+  authorization. Read `docs/ACCOUNTS_PASSPORTS.md` before identity/private-data work.
+  Never accept a caller-supplied owner, put a bearer in URLs/logs/plain storage,
+  or expose private plant records in the public catalog. Consent preferences do
+  not authorize an unbuilt feature to start collection or public sharing.
 - Keep secrets in environment variables. Never log tokens, exact GPS coordinates, or personal photos.
 - Use pagination for growing collections and avoid N+1 query patterns.
 

@@ -4,11 +4,19 @@ Each stage should end with a working path, updated docs, relevant checks, and a 
 
 ## 0. Starter repository — included
 
-API, local database, demo catalog, Flutter shell, and project instructions. Verify on the recipient's Android SDK because Flutter is unavailable in the authoring environment.
+API, local database, demo catalog, Flutter Android runner and project instructions.
+Android preview was verified on the recipient's Mac. Versioned Alembic migrations,
+guarded legacy adoption and isolated PostgreSQL/API checks are now included.
 
 ## 1. Reviewed plant catalog
 
-Confirm data source access and licensing. Add reviewed source metadata, crop/tree requirements, locations, seasons, and growing environments. Add migrations, importer validation, source links, and API filters. Remove demo rows from any advice path.
+Confirm data source access and licensing. Add reviewed source metadata, crop/tree requirements, locations, seasons, and growing environments. Extend the versioned migrations, importer validation, source links, and API filters. Remove demo rows from any advice path.
+
+**Foundation implemented:** revision0003, strict versioned import/audit, field-level
+citations, explicit locality/context, source access/rights checks and a fail-closed
+candidate API. Three cited research profiles are draft; actual permission and
+Bangladesh agronomic approval remain pending. This stage is not complete merely
+because import validation passes. See `CATALOG_SOURCES.md` / `CATALOG_IMPORT.md`.
 
 **Done when:** a catalog item can be traced to a reviewed source; missing or contradictory information is surfaced; tests cover bad imports and empty filters.
 
@@ -16,11 +24,26 @@ Confirm data source access and licensing. Add reviewed source metadata, crop/tre
 
 Add accounts and consent, a plant goal form, location precision choices, container/soil/sunlight inputs, suitability rules, and explanation of why each result fits.
 
+**Identity/record slice implemented:** local handle/password accounts, optional
+preferences/withdrawal receipts, revocable sessions, private Plant Passports and
+manual care history, plus server ownership tests and mobile flow.
+
+**Goal/rules slice implemented:** bilingual transient form, chosen location
+precision, optional device speech, cited deterministic matches and explicit
+uncertainty/empty/unsupported states. Structured selections—not inferred goal
+prose—drive rules. Real catalog approval and production identity operations remain
+pending; LLM generation is unbuilt. See `GOALS_RECOMMENDATIONS.md`.
+
 **Done when:** unsupported or incomplete conditions return a safe explanation instead of confident advice.
 
 ## 3. Care plan and quests
 
 Create versioned plans grounded in reviewed records. Turn plans into dated tasks. Add forecast adapter with timestamp and fallback; keep an audit of weather-driven task changes.
+
+**Plan slice implemented:** reviewed bilingual directives, dated source-cited
+previews, review dates, explicit gaps/conflicts, private immutable versions and
+live evidence rechecks. Real approved guidance is pending. Tasks/weather/LLM
+generation are not built. See `CARE_PLANS.md`.
 
 **Done when:** rain and heat scenarios, stale forecast, and no network are covered by tests.
 

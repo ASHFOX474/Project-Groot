@@ -24,8 +24,31 @@ Catalog and advice data should eventually come from reviewed, attributable Bangl
 
 ## Current starter scope
 
-The catalog is explicitly demo-only. It is useful for checking the phone → API → database path. It must not be used for planting decisions.
+The preview catalog includes explicit demo rows and can include source-checked
+research records. Neither browsing nor a source's `reviewed` evidence flag is
+planting approval. A separate candidate-data boundary excludes demo, drafts,
+expired reviews and uncleared rights. The first crop/tree research profiles remain
+draft; no recommendation-eligible profiles ship yet. See
+[source findings](CATALOG_SOURCES.md) and [import policy](CATALOG_IMPORT.md).
 
 ## First real product slice
 
-Allow a user to enter a goal, district or approximate area, growing space, sunlight, and available soil information. Return only reviewed species with an explanation of suitability and uncertainty. A recommendation is complete only when tests cover unsupported regions, missing soil detail, and an empty result.
+Local handle/password accounts, editable optional choices and private Plant
+Passports/manual care history are implemented. Names and care are self-reported,
+not validated plant identification or survival evidence. There is no sharing,
+GPS, photos, analytics, email recovery or offline synchronization. Use test data
+in the HTTP preview; see [privacy/storage limits](ACCOUNTS_PASSPORTS.md).
+
+Bangla/English goal intake now collects chosen location precision, growing space,
+sunlight and available soil/season details. Optional Android voice returns editable
+text. Deterministic rules return eligible reviewed profiles with reasons and
+uncertainty, or explain missing/unsupported data. Goals are transient, not stored.
+Tests cover unsupported regions, missing soil, mismatches and empty results.
+Actual approved content remains pending; no demo/draft recommendation fallback or
+LLM care generation exists. See [scope and privacy](GOALS_RECOMMENDATIONS.md).
+
+Reviewed directive-based care plans now provide bilingual dated instructions,
+citations/review dates, explicit missing/conflicting guidance and private immutable
+versions. Saving retains structured conditions, not free goal/soil prose. Evidence
+changes withhold old advice. Approved care content, weather quests and LLM providers
+remain pending. See [implemented care scope](CARE_PLANS.md).
