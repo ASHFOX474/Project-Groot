@@ -35,9 +35,10 @@ draft; no recommendation-eligible profiles ship yet. See
 
 Local handle/password accounts, editable optional choices and private Plant
 Passports/manual care history are implemented. Names and care are self-reported,
-not validated plant identification or survival evidence. There is no sharing,
-GPS, photos, analytics, email recovery or offline synchronization. Use test data
-in the HTTP preview; see [privacy/storage limits](ACCOUNTS_PASSPORTS.md).
+not validated plant identification or survival evidence. Private photo check-ins
+are implemented as a separate, off-by-default opt-in per plant; they are not shared
+publicly and are not used for analytics. There is no GPS capture or email recovery.
+Use test data in the HTTP preview; see [privacy/storage limits](ACCOUNTS_PASSPORTS.md).
 
 Bangla/English goal intake now collects chosen location precision, growing space,
 sunlight and available soil/season details. Optional Android voice returns editable
@@ -50,5 +51,34 @@ LLM care generation exists. See [scope and privacy](GOALS_RECOMMENDATIONS.md).
 Reviewed directive-based care plans now provide bilingual dated instructions,
 citations/review dates, explicit missing/conflicting guidance and private immutable
 versions. Saving retains structured conditions, not free goal/soil prose. Evidence
-changes withhold old advice. Approved care content, weather quests and LLM providers
-remain pending. See [implemented care scope](CARE_PLANS.md).
+changes withhold old advice. Approved care content and LLM providers remain
+pending. See [implemented care scope](CARE_PLANS.md).
+
+Daily observation quests, weekly cited instruction reviews, private completion,
+opt-in regional weather check notes with stale-data warnings and generic Android
+reminders are implemented. Weather never guesses watering frequency/doses or soil
+moisture. Provider access needs operator enablement and separate user notice;
+reviewed content is still required. See [quest boundaries](QUESTS_WEATHER_REMINDERS.md).
+
+An opt-in Android offline notebook now stores downloaded plans/passports and
+durable care entries, with device-lock access, owner-bound idempotent synchronization,
+explicit conflicts and cached-evidence expiry. Online identity tokens remain in
+memory. No offline AI/weather/quest completion or passport edits are claimed;
+native unlock/encryption success still needs a secure-device test. See
+[offline scope and privacy](OFFLINE_CARE.md).
+
+Private photo check-ins are separately consented per passport. The server validates
+and canonicalizes one JPEG/PNG, strips metadata, keeps the image owner-scoped, and
+serves a paginated private timeline. Optional health assistance is a bounded local
+colour heuristic plus user-reported symptoms; it returns possible observations,
+`low_uncalibrated` confidence and no probability or diagnosis. Serious, worsening
+or uncertain cases can use the 16123 agricultural help path. No external model
+provider or public photo feed exists.
+
+Rewards and community are now an explicit opt-in prototype. The rewards view
+computes per-plant care streaks and self-reported 3-, 6- and 12-month milestones;
+the garden score is the average of capped per-plant scores, so plant count adds no
+points. Community posts are pending until moderation, public aliases replace
+account handles, and neighborhood results require at least five opted-in growers
+and show district aggregates only. No photo, exact address or private passport is
+published.

@@ -13,6 +13,10 @@ PostgreSQL at startup. Schema revisions do not insert demo records.
 | `0003` | Add source rights/review metadata, scoped profiles, requirements, import audit and filtered view | Blocked: dropping provenance could lose review/import evidence |
 | `0004` | Add accounts, hashed sessions, consent receipts, private passports/care and throttle buckets | Blocked: dropping tables would erase private records |
 | `0005` | Add reviewed care directives, private plans and immutable versions | Blocked: dropping tables would erase reviewed/private data |
+| `0006` | Add owner/version task completions, weather preference and bounded public regional forecast cache | Blocked: dropping tables would erase private records |
+| `0007` | Add nullable care retry UUID and partial unique owner/UUID index; existing values unchanged | Blocked: removing retry identities could duplicate synchronized care |
+| `0008` | Add separately consented private photo metadata, bytes and assistance | Blocked: dropping tables would erase private photos/consent |
+| `0009` | Add rewards inputs and consented community profiles, posts, reports and moderation | Blocked: dropping tables would erase posts/reports/moderation state |
 
 The guarded CLI uses a single transaction per command, including Alembic's version
 update. PostgreSQL's advisory transaction lock prevents overlapping migration or
@@ -66,7 +70,7 @@ docker compose build api
 sh scripts/db.sh current             # reports unversioned
 # Perform and verify the backup above before continuing.
 sh scripts/db.sh baseline --confirm  # validate actual schema, then stamp ONLY 0001
-sh scripts/db.sh upgrade             # apply through 0005; preserve catalog/private rows
+  sh scripts/db.sh upgrade             # apply through 0009; preserve catalog/private rows
 sh scripts/db.sh check
 docker compose up --build --wait
 python3 scripts/smoke_api.py
@@ -115,7 +119,9 @@ docker compose up --wait
 ```
 
 `0002 → 0001` removes only the added index. `0003` rollback is always blocked to
-retain provenance; `0004` and `0005` rollback is blocked to retain private records. Do not
+retain provenance; `0004`, `0005` and `0006` rollback is blocked to retain private records.
+`0007`, `0008` and `0009` rollback is blocked to preserve care deduplication,
+private photo, consent and community records. Do not
 bypass these guards with a stamp. `downgrade base` is blocked; even
 from an older head, earlier steps roll back if the baseline guard raises. Failed migrations leave
 the previous version/schema/rows intact. Never use a stamp to pretend rollback ran.
@@ -140,7 +146,7 @@ also avoids silently overwriting rows written after the backup.
 
 ```sh
 # In services/api with the dev dependencies installed:
-alembic -c alembic.ini revision --rev-id 0006 -m "describe the change"
+alembic -c alembic.ini revision --rev-id 0010 -m "describe the change"
 ```
 
 The template deliberately raises until both directions have been reviewed.

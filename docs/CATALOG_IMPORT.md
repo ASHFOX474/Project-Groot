@@ -81,7 +81,7 @@ curl -f http://127.0.0.1:8000/v1/catalog/recommendation-candidates
 ```
 
 This applies the initial research bundle into the quarantined draft catalog, not
-into usable planting advice. Current migration head `0005` includes catalog schema
+into usable planting advice. Current migration head `0009` includes catalog schema
 `0003` and is required by the guarded importer. The command holds the same
 transaction advisory lock as migrations and demo seeding, with bounded waits.
 One transaction covers sources, species, profiles, facts and audit/version hash.

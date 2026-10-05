@@ -20,10 +20,24 @@ Groot is a Bangla-first plant-care companion for Bangladesh. This repository is 
 - Personalized reviewed care previews, citations/review dates, explicit private
   saving and immutable plan versions, with withheld missing/conflicting/stale advice.
   Approved care content is still pending; no instructions are invented.
+- Daily observations and weekly reviewed-instruction tasks, retry-safe completion,
+  opt-in district forecasts with stale-data fallback, in-app and generic Android
+  reminders. See [quests/weather setup](docs/QUESTS_WEATHER_REMINDERS.md).
+- Opt-in Android offline notebook for downloaded plans/plants and durable manual
+  care, with owner-bound retry IDs, explicit conflicts and stale-advice withholding.
+  Device screen lock is required; see [offline setup and limits](docs/OFFLINE_CARE.md).
+- Explicitly opted-in private photo check-ins with bounded JPEG/PNG storage,
+  paginated timelines, possible-observation flags with uncalibrated confidence,
+  and an agricultural expert-help path. This is not a disease diagnosis service.
+- Self-reported care streaks, 3-, 6- and 12-month milestone rewards, an average
+  per-plant score, and a consented moderated community with k-anonymous district
+  trends. Community posts stay hidden until approved.
 
-AI recommendations, disease detection, weather adaptation, rewards, offline sync,
-photo uploads, email recovery and MFA are **planned work**. No screen or endpoint
-should claim those are active yet.
+AI recommendations, validated disease detection, automatic irrigation/doses,
+email recovery and MFA remain **planned work**. Photo check-ins are private,
+off by default and never public; survival and care rewards are self-reported and
+do not verify plant health. No screen or endpoint should present the local
+observation heuristic as a diagnosis.
 
 See the [four-milestone audit and remaining approval steps](docs/MILESTONE_STATUS.md).
 The local starter, migration and account/passport paths work; the catalog
@@ -169,7 +183,8 @@ instructions. Do not confuse a source evidence check with planting approval.
 It currently returns `[]`, not demo fallback. Private
 `POST /v1/goals/recommendations` uses that same eligibility query for condition matching.
 `GET /v1/catalog/species` stays a preview/general catalog endpoint and must not feed
-recommendations or RAG. Care-plan generation remains unbuilt.
+recommendations or RAG. Reviewed care plans and quests are implemented; approved
+care content remains pending.
 
 ## Goals and suitable plants
 
@@ -190,7 +205,7 @@ plant, log care and edit consent choices. All optional choices default off. Sess
 tokens stay only in app memory; restarting requires sign-in. Use test credentials
 on the HTTP emulator preview; real use requires HTTPS and production hardening.
 Read [account/privacy behavior, API contract and checks](docs/ACCOUNTS_PASSPORTS.md)
-before using personal data. Migration head is now `0005`; back up before upgrading
+before using personal data. Migration head is now `0009`; back up before upgrading
 an existing database. Catalog/recommendation permissions remain unchanged.
 
 ## Make your Git repository

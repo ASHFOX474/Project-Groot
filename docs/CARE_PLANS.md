@@ -12,9 +12,12 @@ preview and explicitly save a version. Different species require separate plans.
 The generator is deterministic: it extracts **explicit human-reviewed bilingual
 instructions and timing**, not LLM prose or invented watering/fertilizer doses.
 Live approved content is still pending. Demo/draft content never becomes advice;
-synthetic approved fixtures belong only in disposable test databases. No weather
-quests, reminders, offline storage, passport linkage, disease treatment or survival
-verification is built here.
+synthetic approved fixtures belong only in disposable test databases. Current
+plans support [quests, weather check notes and reminders](QUESTS_WEATHER_REMINDERS.md).
+Downloaded plans can be viewed in the separately opted-in Android
+[offline notebook](OFFLINE_CARE.md), labelled unverified and withheld after24h or
+known expiry. No offline generation/revision, passport-plan linkage, disease
+treatment or survival verification is built here.
 
 ## Grounding and gaps
 

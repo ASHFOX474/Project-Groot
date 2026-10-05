@@ -27,14 +27,15 @@ account and private garden work with all three off. The current notice version i
 | Choice | Intended purpose | Current behavior |
 | --- | --- | --- |
 | Precise location | Optional coordinates attached to a future check-in | No GPS capture, location permission or coordinate field exists |
-| Community | Optional sharing of future check-in photos | No uploads, public passport endpoint or sharing exists |
-| Impact | Optional aggregate survival statistics | No analytics collection, export or reporting exists |
+| Photo check-ins | Separate per-plant storage and health choices | Private uploads are implemented; sharing, public passports and analytics do not exist |
+| Community | Optional moderated text posts and district-level aggregates | Requires this choice plus a separate community profile notice; posts are approved before feed visibility, and withdrawal hides posts/removes district metadata |
+| Impact | Optional aggregate survival statistics | No separate impact dashboard; community trends use only opted-in, k-anonymous district aggregates |
 
-These are recorded preferences, not blanket permission for future features.
-Activation needs an appropriate new feature notice, review of withdrawal/deletion
-behavior, and OS permissions where relevant. Setting a choice to true does **not**
-make a passport public or start collection. Necessary account/passport storage is
-explained separately from optional uses; no marketing consent is required.
+These are recorded preferences, not blanket permission for unrelated features.
+Community activation additionally needs the `community-2026-10-06` profile notice.
+Setting a choice to true does **not** publish a passport, photo or exact location.
+Necessary account/passport storage is explained separately from optional uses; no
+marketing consent is required.
 
 Tap **Add plant** to enter a nickname, your species identification, planting date,
 growing space, sunlight, soil/potting description and optionally an approximate
@@ -48,9 +49,18 @@ Open a passport to edit it or **Log care** (watering, feeding, pruning, repottin
 observation). Care dates cannot precede planting or be in the future; editing the
 planting date cannot invalidate existing care. History is ordered by date and ID,
 paginated, and self-reported, not proof of care/survival. Log an observation to
-clarify an earlier entry; no care-entry edit or offline queue is implemented.
-After a lost network response, refresh before retrying a write: this online API
-does not yet have offline/idempotency-key deduplication.
+clarify an earlier entry; care-entry edits are not implemented. The opt-in Android
+[offline notebook](OFFLINE_CARE.md) now queues care using durable UUID retry IDs.
+The ordinary online form/legacy clients omit those IDs: after a lost network
+response there, refresh history before retrying rather than assuming deduplication.
+
+Open **Rewards and community** from the private garden to review care streaks and
+self-reported 3-, 6- and 12-month milestones. The score averages capped scores
+across plants, so plant count adds no points. To post, enable community consent,
+choose a district and public alias, then submit text for moderation. Approved feed
+items show the alias only; neighborhood results require five opted-in growers and
+show aggregates rather than individual gardens. These records do not verify plant
+survival or publish private photos.
 
 **Sign out** revokes this session. **Password** requires the current password and
 revokes every session, then asks you to sign in again. **Delete plant** requires a
@@ -75,9 +85,15 @@ older data until the operator removes/expires them under a retention policy.
 - Flutter keeps the token only in memory; no password/token is written to files,
   preferences, URLs or logs. Restarting the app or closing the account screen
   requires sign-in. Closing the screen alone does not revoke a server session;
-  use Sign out to revoke it. Secure persistent storage remains separate work.
+  use Sign out to revoke it. Persistent login tokens remain separate work.
   A failed sign-out still clears local data, but the server token can remain valid
   until expiry. A 401 clears the local session and private view.
+- Separately opted-in offline data remains encrypted and device-unlockable after
+  sign-out/session expiry; no bearer/password is retained. Offline storage does
+  not grant API authentication. Anyone knowing the device credential can access
+  the notebook. Remote deletion cannot erase a disconnected device; explicitly
+  erase local data when desired, with a warning before losing unsynced care.
+  Review [storage limits, device access and conflicts](OFFLINE_CARE.md).
 - Every private DB transaction resolves the bearer session and locks the account,
   then rechecks session validity. Reads/writes include that authenticated owner;
   clients cannot supply an owner ID. Foreign-account and missing passport IDs both
@@ -124,7 +140,10 @@ Private responses, including errors, use `Cache-Control: no-store`. Bodies are
 bounded to 16KiB even when chunked; unknown fields, invalid units/dates/UUIDs,
 oversized strings, null characters and invalid Unicode are rejected. Validation
 errors omit supplied input values; unexpected DB errors return generic 503s.
-No external providers or third-party analytics were added. Review deployment/DB
+An independently disclosed, per-plan opt-in regional weather provider is now
+available; no account/plant/goal data or GPS is sent. General consent preferences
+do not enable it. See [weather notice and withdrawal](QUESTS_WEATHER_REMINDERS.md).
+No third-party analytics were added. Review deployment/DB
 logging too: privileged operator logs and backups must not become a PII leak.
 
 ## API contract

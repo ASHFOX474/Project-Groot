@@ -891,3 +891,318 @@ Starlette/httpx warning remains. Live API/data are not reset. Local/remote `main
 matched at the start. Final count, both identities, messages, tree preservation
 and remote fast-forward compatibility are rechecked before the normal push;
 remote commit attribution will be checked after publication and reported in chat.
+
+## 2026-10-05 — Care quests, district weather and generic reminders
+
+**Outcome:** Implemented daily observation check-ins and weekly reviews of cited
+care instructions, owner/version-scoped retry-safe completion/undo, explicit
+per-version district-weather opt-in, bounded forecast cache and stale/unavailable
+fallback, in-app pending counts and optional generic Android reminders. The source
+format lacks exact care frequency: weekly reviews do not invent weekly watering
+or fertilizer schedules. Rain/heat only add monitoring checks; no irrigation
+suppression/increase, doses, offline queue, rewards or fake approvals.
+
+**Files changed and why:**
+
+- `services/api/app/quests.py`: strict task/preference/completion contracts and pure
+  Bangladesh-date scheduler, unchanged cited text, partial-plan disclosure and
+  weather check notes gated by retrieval freshness/coverage.
+- `services/api/app/weather.py`: fixed-host HTTPS Open-Meteo adapter, supported
+  chosen district aliases/reference points, validated bounded payload, retrieval
+  timestamp and explicit unknown model age; operator mode defaults off.
+- `services/api/app/quest_repository.py`: short transactional owner/session and
+  evidence gates around provider I/O, shared eight-key15-minute cache claims,
+  retry-safe completion and latest-version preference/retention isolation.
+- `services/api/app/account_routes.py`: three authenticated, limited quest routes
+  under existing no-store/body/TLS/privacy protections.
+- `services/api/migrations/versions/0006_quests_weather.py`: new completion,
+  per-version weather preference and public regional cache tables/indexes only;
+  composite ownership/version FKs and blocked destructive downgrade.
+- `services/api/tests/test_quests.py`, `services/api/tests/test_weather.py`,
+  `services/api/tests/integration/test_quests.py`: scheduling, immutable advice,
+  partial gaps, weather transport/failure/freshness, opt-in, isolation, retries/undo,
+  cache corruption, post-fetch revocation, migration preservation/cascade tests.
+- `services/api/tests/test_migration_config.py` and integration
+  `test_database.py`, `test_accounts_passports.py`, `test_care_plans.py`,
+  `test_reviewed_catalog.py`: update expected head to0006; simulated failing next
+  migration becomes0007. Existing historical migrations are unchanged.
+- `apps/mobile/lib/quest_models.dart`, `quest_board.dart`: immutable parsing,
+  task/check-off UI, clear weather freshness/provenance/notice, pending reminders,
+  safe online failure and foreground/resume refresh. Device reminder is separate.
+- `apps/mobile/lib/care_reminders.dart`: minimal native channel and safe fallback.
+- `apps/mobile/lib/care_plan_view.dart`: latest-plan navigation to quests; historical
+  versions cannot open an old task board.
+- `apps/mobile/lib/private_api.dart`: private task client and injectable session-
+  clear callback; keeps plain HTTP tests independent of platform services.
+- `apps/mobile/lib/private_garden.dart`: wires reminder cancellation to actual
+  logout/401/password/deletion/disposal lifecycle.
+- Android `app/src/main/kotlin/bd/groot/groot_app/CareReminder.kt`, `MainActivity.kt`
+  and `app/src/main/AndroidManifest.xml`: optional POST_NOTIFICATIONS request,
+  private receiver and generic inexact daily alarm; cancel on new engine/session
+  clear, including pending permission callbacks. No exact-alarm/location permission,
+  private notification content or extra package dependency.
+- `apps/mobile/test/quests_test.dart`, `care_reminders_test.dart` and
+  `integration_test/quests_smoke_test.dart`: stale UI/check-off/fallback regressions
+  and actual emulator reminder bridge enable/status/cancellation smoke.
+- `.env.example`, `compose.yaml`: documented off-by-default provider mode; existing
+  private `.env` is untouched and live mode remains disabled.
+- `docs/QUESTS_WEATHER_REMINDERS.md`: detailed scheduling, conservative adaptation,
+  provider terms/privacy/attribution, unknown model age, native reminder limitations,
+  API, retention and migration/setup procedures. Primary sources checked2026-10-05.
+- `docs/testing/quests-weather-reminders.tdd.md`: RED/GREEN journeys, test mapping,
+  actual commands/results, preservation and unverified platform/provider gaps.
+- `README.md`, `AGENTS.md`, `docs/PRODUCT.md`, `ARCHITECTURE.md`, `CARE_PLANS.md`,
+  `ACCOUNTS_PASSPORTS.md`, `DATABASE_MIGRATIONS.md`, `SETUP_MAC.md`,
+  `MILESTONE_STATUS.md`: current scope, new privacy boundary,0006 operations and
+  preview path; no planned features represented as deployed capabilities.
+- `scripts/check_repo.py`: require new source/migration/test/guide paths at handoff.
+- `builders.md`: this file-level outcome/check/risk report.
+
+**Skills:** Read FastAPI, Dart/Flutter, PostgreSQL and TDD skills before work.
+They guided thin typed routes, owner-scoped transactions, immutable client models,
+safe async lifecycle and test-first work. Repo/user instructions override TDD's
+checkpoint-commit recommendation: no unrequested commit or staging was made.
+
+**Checks:** API unit136 passed (subset of total); isolated PostgreSQL suite231
+passed,99.64% statement coverage/90% gate; Flutter analysis clean,23 tests passed,
+normal ARM64 debug APK built. One API36 emulator smoke passed with synthetic HTTP
+fixtures and real reminder enable/status/cancel. Seven handoff regressions and
+working diff whitespace checks passed. Real-index handoff intentionally fails on
+new untracked files pending user staging/commit approval; not represented as PASS.
+No remote CI run/push. Existing upstream Starlette/httpx warning remains.
+
+**Data and preview:** Backed up to private ignored
+`backups/groot-before-0006.2D5scr`; restored in isolated no-network tmpfs PostgreSQL
+and matched data-only hashes. Applied guarded0006 upgrade and restarted API.
+All14 original tables' counts/exact hashes unchanged; five-species live smoke,
+three OpenAPI quest routes and disabled provider mode verified. Preserved existing
+account/passport/care and draft catalog; no seeds/import promotion/reset. Temporary
+test/restore servers cleaned only their owned resources; backup retained. Existing
+Flutter SDK and its untracked DevTools file unchanged; three staged `.vscode`
+files, Git branch/history/identity and credentials untouched. Emulator test package
+was removed by Flutter; normal app reinstalled, notification permission returned
+to its original denied state. Actual preview remains on the existing emulator.
+
+**Limits:** Approved content remains pending, so real plan/task lists may be empty.
+Non-commercial weather needs operator terms review plus user notice; no actual
+provider availability/plot accuracy claimed. Provider socket timeout isn't a hard
+DNS/total deadline. Model issue time unknown. Generic device reminders do not
+promise tasks are due, exact delivery, forecast refresh or reboot/timezone recovery.
+Native scheduling/cancellation tested, not notification presentation/Doze delivery.
+Production security/TLS/roles, offline queue, automatic irrigation changes and
+passport linkage remain separate. Existing remote SDK `tools` CI failure unchanged.
+
+## 2026-10-05 — Opt-in offline care notebook and retry-safe sync
+
+**Outcome:** Added Android-only, explicitly enabled downloaded plan/passport
+viewing and manual care recording without network access. The encrypted durable
+outbox reuses its original UUID on retry; the backend appends once instead of
+overwriting history. Conflicts stay visible for review. No offline login, fresh
+weather/recommendations, passport edits, photos or queued quest completion.
+
+**Files changed and why (this task; prior quest work preserved):**
+
+- `apps/mobile/lib/offline_care.dart`: bounded, serialized, durable notebook/outbox,
+  owner UUID/server binding, atomic inventory replacement, retry/conflict rules,
+  pending-removal protection, immediate lifecycle invalidation against late sync
+  overwrites and conservative cached-instruction withholding.
+- `apps/mobile/lib/offline_care_view.dart`: separate opt-in/download/unlock UI,
+  cited plan snapshots, offline care form, pending/synced/review states, explicit
+  local erase, foreground retry and background/five-minute/exit locking.
+- `apps/mobile/lib/private_api.dart`: remember account UUID only in memory;
+  verify live owner, fetch raw version snapshots, submit stable care UUIDs and
+  retain HTTP status for conflict handling. Bearers remain memory-only.
+- `apps/mobile/lib/private_garden.dart`: expose the notebook from the account
+  screen even when signed out; reuse the existing care form as public `CareForm`.
+  A formatter/lint brace correction preserves the existing sign-out behavior.
+- `apps/mobile/android/app/src/main/kotlin/bd/groot/groot_app/OfflineCareVault.kt`:
+  bounded AES-256-GCM blob using an authenticated Android Keystore key, no-backup
+  private storage and AtomicFile; no plaintext/corruption-erasure fallback.
+- `apps/mobile/android/app/src/main/kotlin/bd/groot/groot_app/MainActivity.kt`:
+  device-credential confirmation, serial vault bridge, lifecycle/generation gates
+  and screenshot/recents protection. Existing voice/reminder bridges preserved.
+- `apps/mobile/android/app/src/main/AndroidManifest.xml`: disable app backups
+  because the opted-in notebook contains private plant conditions/care notes.
+- `apps/mobile/test/offline_care_test.dart`:25 unit/widget tests for durability,
+  retries, storage/transport failures, limits, conflicts, owner isolation,
+  opt-in/citations/manual entry/erase, timeout, bridge arguments and reopened-
+  notebook protection from a late sync acknowledgment.
+- `apps/mobile/integration_test/offline_care_smoke_test.dart`: synthetic
+  offline entry/reopen/sync-once plus real native locked/no-screen-lock refusal;
+  no live account creation, care writes or agricultural approval.
+- `services/api/app/accounts.py`: optional strict UUID care input, unchanged public
+  response, owner-transaction replay lookup/content comparison and UUID insert.
+- `services/api/migrations/versions/0007_offline_care.py`: new nullable retry column
+  and partial owner-scoped unique index only; downgrade refuses deduplication loss.
+- `services/api/tests/integration/test_offline_care.py`: five PostgreSQL tests for
+  concurrent/repeated submission, changed-content conflicts, ownership/deletion,
+  date/legacy compatibility and additive migration/blocked rollback.
+- `services/api/tests/test_migration_config.py`: expect new head0007.
+- `services/api/tests/integration/test_database.py`: expect head0007 and move the
+  simulated failing future migration to0008/down0007.
+- `services/api/tests/integration/test_accounts_passports.py`,
+  `services/api/tests/integration/test_care_plans.py`,
+  `services/api/tests/integration/test_reviewed_catalog.py`,
+  `services/api/tests/integration/test_quests.py`: update current-head assertions
+  and downgrade safety-message expectations; preserve existing behavior tests.
+- `.gitignore`: keep generated mobile coverage out of the repository.
+- `scripts/check_repo.py`: require offline source/migration/tests/docs at handoff
+  and reject tracked coverage artifacts, without staging anything.
+- `docs/OFFLINE_CARE.md`: setup, privacy/shared-device tradeoffs, precise persistence
+  and conflict rules, capacities, stale evidence, migrations and secure-device
+  verification limits; primary Android documentation checked2026-10-05.
+- `docs/testing/offline-care.tdd.md`: reproducible RED/GREEN evidence, measured
+  checks/coverage, native fixture boundaries and live-data preservation record.
+- `README.md`: current offline capability and setup-guide entry point.
+- `AGENTS.md`: current capability and safeguards for future offline changes.
+- `docs/PRODUCT.md`: separate notebook opt-in and implemented versus planned scope.
+- `docs/ARCHITECTURE.md`: encrypted local boundary, owner/server retry flow and
+  exclusions from offline operations.
+- `docs/CARE_PLANS.md`: offline version/citation retention and stale withholding.
+- `docs/ACCOUNTS_PASSPORTS.md`: optional care retry contract, memory-only auth and
+  explicit sign-out/notebook retention tradeoffs.
+- `docs/QUESTS_WEATHER_REMINDERS.md`: distinguish manual offline care from online
+  version-bound quest completion/weather.
+- `docs/DATABASE_MIGRATIONS.md`: latest revision0007, nullable additive impact,
+  next revision0008 and forward-fix rollback guidance.
+- `docs/SETUP_MAC.md`: device-lock requirement, download/record/reconnect preview
+  instructions and current migration expectation.
+- `docs/ROADMAP.md`: mark the bounded offline-care slice separately from unbuilt
+  photos, passport edits and background/production work.
+- `docs/MILESTONE_STATUS.md`: actual offline scope/checks and remaining native
+  credential/crypto verification gap.
+- `builders.md`: this exact file-level outcome, verification and risk report.
+
+**Skills:** Read Dart/Flutter, FastAPI, PostgreSQL, security-review and TDD skills.
+They informed serialized immutable state, owner-scoped transaction/idempotency,
+additive migration, opt-in/Keystore/no-token storage and test-first safeguards.
+The project prohibition on unrequested commits overrides checkpoint-commit
+examples; RED/GREEN is recorded in the test evidence instead.
+
+**Checks:** Initial Flutter RED referenced unimplemented notebook contracts;
+the first targeted DB run executed five tests with four failing/one passing.
+The pending-removal regression also failed before its guard. Final security review
+reproduced a late acknowledgment overwriting a reopened notebook; immediate store
+invalidation and pre/post-write gates fixed it, with a passing regression.
+Final isolated
+PostgreSQL suite236 passed,99.58% statement coverage (90% gate); network-isolated
+API unit/config suite136 passed with100 integration tests deselected. Flutter
+analysis clean,48 tests passed, including25 offline tests; normal ARM64 debug
+APK built. Offline queue core174/187 executable lines covered (93.05%, not a
+whole-app coverage claim). Emulator fixture/native-refusal smoke passed; native
+credential/encryption success is not claimed. Seven handoff regressions and
+working whitespace checks passed. Actual Git-index handoff fails because prior
+quest/new offline source remains untracked; no staging/commit/push/remote CI.
+Existing Starlette/httpx warning and historical remote mobile SDK failure remain.
+
+**Data and preservation:** Private ignored backup
+`backups/groot-before-0007.v7Aq6S` restored in an isolated no-network tmpfs
+PostgreSQL container; all17 existing tables' counts/canonical hashes matched.
+Applied guarded0007 and restarted the compatible API. All17 old tables' values
+unchanged (comparison excludes only new nullable `request_id`); API healthy and
+five-species Bangla live smoke passed. No reset, seed, catalog promotion or old
+migration edit. Removed only the owned temporary restore container; backup and
+live database retained. Existing Flutter SDK/DevTools file, three staged VS Code
+configs, Git main/history/identity and credentials preserved.
+Final read-only comparison again matched all17 tables. The final emulator smoke
+passed after the lifecycle fix; its test package was replaced by the rebuilt
+normal APK, installed and launched for preview. Emulator lock settings unchanged.
+
+**Limits:** Emulator has no screen-lock credential; no authorization was received
+to change it. Native successful unlock/encrypt/decrypt, key invalidation and
+process-kill recovery need secure-device manual checks. Fixtures are not native
+crypto proof. Local data deliberately survives logout until explicit erase;
+anyone knowing the device credential can unlock it. Remote deletion/revocation
+cannot erase a disconnected device and clock tampering cannot be solved offline.
+No persisted bearer/password or silent pending eviction. Foreground retries only;
+one account/server notebook,50 plants/50 plans/500 local care records/2MiB cap.
+Approved live care content is still pending, so real plan lists may be empty.
+Production security/TLS/roles/recovery and broader offline workflows remain separate.
+
+### 2026-10-05 — Align private photo check-in disclosures
+
+**Why:** Private photo check-ins and bounded observation assistance were already
+implemented, but product, architecture, roadmap, milestone, account/privacy and
+in-app notices still described photos as entirely unimplemented.
+
+| File | Change | Reason |
+| --- | --- | --- |
+| `README.md` | Document opt-in private photo check-ins and clarify validated disease AI remains pending | Keep the top-level feature inventory accurate |
+| `AGENTS.md` | Describe the private photo observation prototype and its non-diagnostic boundary | Keep agent context aligned with the current repository |
+| `apps/mobile/lib/private_garden.dart` | Clarify that photo storage is a separate opt-in | Prevent the in-app privacy notice from contradicting the feature |
+| `docs/PRODUCT.md` | Add the implemented private timeline and heuristic-assistance limits | Document consent, uncertainty and expert-help behavior |
+| `docs/ROADMAP.md` | Mark local photo check-ins and observation assistance implemented | Remove stale roadmap claims while retaining future model work |
+| `docs/ARCHITECTURE.md` | Add private photo storage/assistance to current boundaries | Reflect the actual API, mobile and database flow |
+| `docs/ACCOUNTS_PASSPORTS.md` | Replace the obsolete “no uploads” row with the separate photo-consent boundary | Keep privacy choices accurate |
+| `docs/MILESTONE_STATUS.md` | Record the subsequent private-photo prototype slice and test evidence | Preserve delivery history and limitations |
+| `builders.md` | Record this documentation/privacy alignment | Satisfy the project change-report requirement |
+
+**Database impact:** None. Existing migration `0008_private_photos` and photo
+tables were unchanged.
+
+**Checks:** `sh scripts/check-db.sh python -m pytest -q tests/test_photos.py tests/integration/test_photos.py` passed 29 tests with two non-failing warnings. `../../scripts/flutterw test --suppress-analytics test/photo_checkins_test.dart` passed 7 tests. `git diff --check` passed.
+
+**Risks / next step:** The local heuristic remains unvalidated and cannot diagnose
+disease or recommend chemical/dose changes. Successful Keystore/device-credential
+behavior still needs a secure-device manual check; public sharing and external model
+providers remain unimplemented.
+
+### 2026-10-06 — Add survival rewards and moderated community
+
+**Outcome:** Added transparent, self-reported care streaks and 3-, 6- and
+12-month milestone cards. Garden scores average capped per-plant scores, so raw
+plant count adds no points. Added a consented district profile, pending/approved
+community posts, reporting with three-report auto-hide, moderator review routes,
+pseudonymous feed output and five-grower k-anonymous neighborhood aggregates.
+Withdrawal hides posts and clears retained district metadata. No private photo,
+exact address or verified survival claim is exposed.
+
+| File | Change | Reason |
+| --- | --- | --- |
+| `services/api/migrations/versions/0009_rewards_community.py` | Add moderator flag, profiles, posts, reports and indexes | Keep the new state additive and owner-bound |
+| `services/api/app/rewards.py` | Add calendar-safe milestone, streak and capped-score calculations | Make reward rules deterministic and reviewable |
+| `services/api/app/community.py` | Add strict profile, post, report, moderation, leaderboard and neighborhood contracts | Validate all public inputs and outputs at the API boundary |
+| `services/api/app/community_repository.py` | Add owner rechecks, moderation, reports, feed, leaderboard and k-anonymous aggregation | Enforce consent, privacy and transaction boundaries server-side |
+| `services/api/app/accounts.py`, `services/api/app/account_routes.py` | Hide community data on withdrawal and expose private rewards/community routes | Keep consent withdrawal effective and wire the API surface |
+| `apps/mobile/lib/private_api.dart`, `apps/mobile/lib/rewards_community.dart`, `apps/mobile/lib/private_garden.dart` | Add API clients, reward/community models, screen and garden entry point | Make the feature usable in the Android flow |
+| `services/api/tests/test_rewards.py`, `services/api/tests/integration/test_rewards_community.py` | Cover reward rules, migration-backed endpoints, moderation, withdrawal and k-anonymity | Verify deterministic behavior and database constraints |
+| `apps/mobile/test/rewards_community_test.dart` | Cover bounded Flutter contract parsing | Prevent mobile response-shape regressions |
+| `docs/testing/rewards-community.tdd.md`, `README.md`, `AGENTS.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/ACCOUNTS_PASSPORTS.md`, `docs/DATABASE_MIGRATIONS.md`, `docs/SETUP_MAC.md`, `docs/MILESTONE_STATUS.md`, `scripts/check_repo.py` | Document the new scope, safeguards, migration head and handoff files | Keep product, operations and agent guidance aligned |
+| `builders.md` | Record this implementation and verification | Preserve the required dated change report |
+
+**Database impact:** Existing passport/care/account rows are preserved. Migration
+`0009` adds `grower_account.is_moderator` with a false default and new community
+tables; its downgrade is intentionally blocked because it would delete posts,
+reports and moderation state.
+
+**Checks:** `sh scripts/check-db.sh` passed all 271 isolated PostgreSQL/API tests
+with 98.37% statement coverage. Focused community integration passed 3 tests.
+`sh scripts/check-mobile.sh` passed Flutter analysis, 56 tests and the Android
+debug APK build. The pure/API reward tests passed 36 targeted tests before the full
+DB run. `git diff --check` was run after the final edits.
+
+**Risks / limits:** Care and survival remain self-reported; the score is not a
+biological survival measurement. Moderator accounts require operator provisioning
+through the database, and there is no moderator UI. District trends stay hidden
+below five participating growers. The existing local catalog/care content still
+needs agronomic approval before real advice or impact claims.
+
+### 2026-10-06 — Add collaborator requirements
+
+**Outcome:** Added a clone-to-run requirements guide covering the verified Docker,
+Python, Flutter, Java, Android SDK, emulator, backend, mobile preview, testing,
+privacy, and contribution workflow requirements.
+
+| File | Change | Reason |
+| --- | --- | --- |
+| `requirements.md` | Add collaborator setup and project rules | Give a new clone owner one reliable starting point |
+| `builders.md` | Record the requirements guide | Preserve the required dated change report |
+
+**Database impact:** None.
+
+**Checks:** `git diff --check` passed. Full API/database/mobile checks were run
+before this documentation-only addition and remain recorded above.
+
+**Risks / limits:** The guide assumes the checked reference toolchain; Android
+SDK paths and emulator IDs vary by machine. A collaborator still needs normal
+GitHub access for a private repository.

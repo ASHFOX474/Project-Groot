@@ -81,8 +81,9 @@ requests/contact require user direction; expert approval cannot be fabricated.
 - Before real/public use: TLS/proxy configuration, least-privilege DB roles,
   protected backups/retention, recovery/MFA and further security review. See
   [accounts and privacy](ACCOUNTS_PASSPORTS.md).
-- AI care plans, weather quests, offline sync, photos,
-  disease analysis, rewards and impact dashboards are outside these four slices.
+- AI care plans and validated disease analysis remain outside these four slices.
+  Rewards/community and private photo check-ins are documented as subsequent
+  local prototype slices below.
 
 ## Subsequent slice: goal intake (2026-10-04)
 
@@ -99,3 +100,53 @@ gap/conflict handling, private immutable versions and live evidence rechecks are
 implemented. Migration head is0005. Approved care content remains pending; no
 demo fallback or live fixture approval was introduced. This is not LLM/weather
 quest generation. See [care scope and review workflow](CARE_PLANS.md) and `builders.md`.
+
+## Subsequent slice: quests, weather and reminders (2026-10-05)
+
+Daily observations, weekly reviewed-instruction reviews, owner/version-scoped
+completion, opt-in coarse district forecasts with freshness/failure safeguards,
+in-app pending counts and optional generic inexact Android reminders are implemented.
+Revision0006 adds only new tables/indexes. No approved demo data, new irrigation
+frequencies/doses, automatic watering suppression, offline queue or background
+forecast jobs were introduced. Provider access defaults off pending operator terms
+review and independent user notice. See [scope/setup](QUESTS_WEATHER_REMINDERS.md).
+Test evidence/current development DB status is recorded in `builders.md`.
+
+## Subsequent slice: offline care (2026-10-05)
+
+An opt-in Android offline notebook now views downloaded plans/passports and queues
+manual care without network access. Owner UUID/server binding, stable retry IDs,
+server uniqueness/account locking, explicit needs-review conflicts and no silent
+pending eviction preserve retry safety. Device-lock/Keystore encrypted atomic
+storage and stale-advice withholding are implemented; login bearers remain memory-only.
+Revision0007 preserves old rows. The development upgrade was backed up/restored
+and all17 existing tables' row counts/hashes remained unchanged. Approved care
+content is still pending. No offline AI/weather or queued quest completion.
+
+Backend236 tests passed (99.58% statement coverage); Flutter analysis,48 tests
+(including25 offline tests) and the Android build passed. Emulator fixture care/reopen/
+sync-once and real native locked/no-device-lock refusal passed. The successful
+credential/Keystore encryption path is not claimed verified: no permission was
+given to change the emulator's screen lock. See [limits/setup](OFFLINE_CARE.md),
+[test evidence](testing/offline-care.tdd.md) and `builders.md` for final local checks.
+
+## Subsequent slice: private photo check-ins (2026-10-05)
+
+Per-passport storage and health choices, bounded canonical image uploads, private
+paginated timelines, explicit deletion, metadata stripping, retry conflict checks,
+possible-observation assistance and the 16123 expert-help path are implemented.
+The assistance is a local unvalidated heuristic with `low_uncalibrated` confidence;
+there is no disease diagnosis, external model provider, public sharing or analytics.
+Migration `0008` is additive and deletion cascades are owner-scoped. The photo
+unit/integration suite passed 29 tests and the Flutter photo suite passed 7 tests.
+
+## Subsequent slice: survival rewards and moderated community (2026-10-06)
+
+Revision `0009` adds owner-scoped reward calculations and consented community
+records. The API and Flutter surface show per-plant care streaks, self-reported
+3-, 6- and 12-month milestone status, and a capped average per-plant score. Posts
+are pending until moderator approval; reports can auto-hide a post after three
+distinct reports. Public aliases replace account handles, and neighborhood
+summaries require five opted-in growers and expose district aggregates only.
+Withdrawal hides posts and removes retained district metadata. No exact location,
+photo, or verified survival claim is published.

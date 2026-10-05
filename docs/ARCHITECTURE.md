@@ -13,12 +13,19 @@ The API owns data access. The Flutter app does not connect directly to PostgreSQ
 ## Current boundaries
 
 - **Flutter:** catalog plus private account/garden presentation and HTTP clients;
-  bearer tokens live only in memory, without local offline personal storage.
+  bearer tokens live only in memory. Explicit offline opt-in adds a bounded,
+  device-unlocked Keystore-encrypted notebook, never persistent login tokens.
+  Separate per-plant photo consent adds a private timeline and local observation
+  assistance; community uses a separate moderated text feed and never publishes
+  private photos.
 - **FastAPI:** public catalog/health plus authenticated account, consent, passport
   and manual-care routes plus transient goal suitability; server-side owner checks,
-  reviewed directive-based care plans with immutable private versions.
+  reviewed directive-based care plans with immutable private versions, transparent
+  rewards calculations and moderated community endpoints.
 - **PostgreSQL:** source provenance plus accounts, hashed sessions, consent receipts,
-  private passports/care history and plan versions; no photos or public sharing.
+  private passports/care history, plan versions, consented photo metadata/bytes,
+  rewards inputs and community moderation records; composite ownership constraints
+  prevent private or cross-account access.
 - **Reviewed-reference boundary:** scoped plant profiles and per-field citations
   imported atomically with an immutable manifest hash. A separate SQL view/API
   excludes demo, drafts, expired/inaccessible or rights-uncleared sources. The
@@ -43,6 +50,23 @@ recompute evidence and withhold stale instructions. Revision `0005` adds only ne
 tables/indexes and an UPDATE guard; no old rows/seeds change. Free goal/soil prose
 is redacted before saving structured conditions; account/plan deletion intentionally
 cascades versions. See [care contracts and safeguards](CARE_PLANS.md).
+
+Current quest flow: latest owner-scoped plan → live evidence recheck → daily
+observations/weekly directive reviews → owner/version-scoped completion. Opt-in
+district forecasts use a bounded public regional cache and short transactions
+before/after provider I/O, never holding account locks through the fetch. New
+revision0006 is additive and preserves old snapshots. Retrieval age/coverage
+gates weather check notes; no inferred irrigation/dose changes. Flutter displays
+pending tasks and optionally schedules a generic inexact Android reminder, without
+  private content or background forecasts. Vision remains planned; rewards consume
+  only dated, self-reported care rows. See [contracts/privacy](QUESTS_WEATHER_REMINDERS.md).
+
+Current offline flow: explicit opt-in + live owner/evidence reads → atomic encrypted
+Android snapshot → device-unlocked cached plan view/local manual care outbox → live
+reauthentication to the original UUID/server → owner transaction + stable operation
+UUID → same care ID on retry. Revision0007 adds a nullable UUID and partial unique
+index; legacy data/clients remain compatible. No last-write-wins edits, cached
+weather or queued quest completions. See [conflicts/privacy](OFFLINE_CARE.md).
 
 ```text
 User goal / consent
@@ -79,8 +103,9 @@ Rollbacks are revision-specific and require confirmation. `0002` can roll back t
 `0001` by removing only its index; rolling back `0001` is prohibited to preserve
 catalog rows. Prefer forward fixes for deployed changes. See
 [migration operations](DATABASE_MIGRATIONS.md) for backup, restore and adoption.
-Before adding users, plans, tasks, check-ins, or rewards, add new reviewed immutable
-revisions with upgrade/rollback tests, ownership constraints, and retention rules.
+Before adding another private workflow, add a reviewed immutable revision with
+upgrade/rollback tests, ownership constraints, and retention rules. Revision `0009`
+adds rewards/community moderation state without changing existing plant or care rows.
 
 Revision `0003` adds source publisher/access/reuse/reviewer/expiry/attribution,
 scientific names, import audit, profiles and requirement facts without changing
@@ -109,7 +134,10 @@ development accepts HTTP. No cookie sessions or trusted arbitrary proxy headers.
 
 Authentication, owner authorization, throttling and explicit deletion now exist.
 Least-privilege production roles, TLS/proxy setup, retention/recovery, MFA/recovery,
-secure persistent mobile storage, upload validation/private storage and per-feature
-collection permissions still need review before real/shared deployment. No GPS,
-photos, model-provider access or aggregate analytics is enabled by the consent
-preferences. See [account data flow and limits](ACCOUNTS_PASSPORTS.md).
+secure persistent login storage and per-feature collection permissions still need
+review before real/shared deployment. No GPS, model-provider access or aggregate
+analytics is enabled by the general consent preferences. Community participation
+requires the existing community choice plus a district-level profile notice;
+withdrawal hides posts and removes district metadata. Photo storage and health
+assistance have their own explicit per-passport choices and remain off by default.
+See [account data flow and limits](ACCOUNTS_PASSPORTS.md).

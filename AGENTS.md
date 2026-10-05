@@ -4,12 +4,12 @@ These instructions apply to every AI coding agent working in this repository. Us
 
 ## Project identity and current state
 
-Groot helps Bangladeshi growers choose suitable plants, maintain care, and track survival. The repository contains Flutter catalog/account/passport/goal screens, a FastAPI catalog and private account/record/goal service, and PostgreSQL provenance/account/plant data. Local handle/password authentication, manual private care history and transient bilingual deterministic suitability rules exist. Approved catalog content is still pending. It does **not** yet contain deployed AI, email recovery/MFA, weather care rules, offline synchronization, photo analysis, public sharing or rewards. Do not describe planned features as implemented.
+Groot helps Bangladeshi growers choose suitable plants, maintain care, and track survival. The repository contains Flutter catalog/account/passport/goal/plan/quest/photo/rewards/community screens, a FastAPI private growing workflow, and PostgreSQL provenance/account/plant data. Local handle/password authentication, private care history, reviewed directive plans, deterministic suitability, district weather check notes, generic Android reminders, an opt-in encrypted Android offline-care notebook, private photo observation, self-reported rewards, and moderated district-level community prototypes exist. Approved catalog content is still pending. It does **not** yet contain deployed AI, validated photo diagnosis, email recovery/MFA, automatic irrigation/doses, public photos or verified survival analytics. Do not describe self-reported rewards or community aggregates as verified outcomes.
 
 Read `README.md`, `docs/PRODUCT.md`, and `docs/ARCHITECTURE.md` before changing a cross-cutting workflow.
 
 Reviewed directive-based care previews/private immutable versions now exist;
-approved care content remains pending. This is not LLM/weather quest generation.
+approved care content remains pending. This is not LLM-generated advice.
 
 ## Every implementation task
 
@@ -57,9 +57,23 @@ Project instructions and the active user request take priority over a conflictin
   Only explicit save retains structured conditions; no free goal/soil prose/audio.
 - Disease or nutrient analysis may flag **possible** symptoms and confidence; do not present a model output as a certain diagnosis. Provide a path to expert help for serious or uncertain cases.
 - Weather rules need forecast timestamp, location, and a safe fallback when data is stale or unavailable.
+  Read `docs/QUESTS_WEATHER_REMINDERS.md` before quest/weather/reminder changes.
+  Preserve off-by-default per-version provider notice, chosen district precision,
+  retrieval/model-age distinction, bounded shared cache, owner/session rechecks
+  across network I/O, unmodified reviewed text and generic notification content.
+  Weekly review is not an inferred action frequency. No automatic rain-driven
+  skipping or heat-driven dosage increases without independently reviewed rules.
 - A photo can support evidence of visible plant condition or growth; it cannot prove every care action. Location tagging must be opt-in.
 - Reward long-term survival and care consistency. Avoid raw plant counts as the sole leaderboard measure.
 - Keep Bangla accessible and allow English where useful. Optimize for low-cost Android phones and intermittent connectivity.
+- Read `docs/OFFLINE_CARE.md` before offline/cache/sync changes. Preserve separate
+  opt-in, device-lock/Keystore/atomic/no-backup storage, UUID + server owner binding,
+  memory-only bearers, pending-before-network durability and no silent eviction.
+  Cached advice is unverified, expires after24h/known evidence expiry and never
+  supplies fresh weather/recommendations. Do not silently erase unsynced care on
+  logout, recreate deleted plants, re-ID failed operations, queue passport edits
+  or apply an old-version quest to a new plan. Native credential/crypto success
+  needs a secure-device test; mocks alone do not verify that path.
 
 ## Database and API rules
 
@@ -80,7 +94,8 @@ Project instructions and the active user request take priority over a conflictin
   authorization. Read `docs/ACCOUNTS_PASSPORTS.md` before identity/private-data work.
   Never accept a caller-supplied owner, put a bearer in URLs/logs/plain storage,
   or expose private plant records in the public catalog. Consent preferences do
-  not authorize an unbuilt feature to start collection or public sharing.
+  not authorize unrelated collection; community activation also needs its own
+  district-profile notice and moderation boundary.
 - Keep secrets in environment variables. Never log tokens, exact GPS coordinates, or personal photos.
 - Use pagination for growing collections and avoid N+1 query patterns.
 

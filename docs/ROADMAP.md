@@ -51,13 +51,30 @@ generation are not built. See `CARE_PLANS.md`.
 
 Queue local care logs, sync later with idempotency keys, and resolve conflicts. Add private photo upload with consent and retention settings.
 
+**Care notebook implemented locally:** explicit Android opt-in, device lock and
+encrypted atomic storage, downloaded latest plans/passports, durable UUID care
+queue, live owner-bound deduplication and needs-review conflicts. Cached advice
+expires after24h/known evidence expiry. No offline passport edits/quest completion
+or weather generation. **Private photo check-ins implemented locally:** separate
+storage/health consent, bounded canonical JPEG/PNG uploads, owner-scoped timeline,
+metadata stripping, retry identities and explicit deletion. Native successful
+credential/encryption still requires a secure-device test. See `OFFLINE_CARE.md`.
+
 **Done when:** retrying sync does not duplicate care logs and private photos are not publicly accessible.
 
 ## 5. Plant-health assistance and survival
 
-Validate local images, return confidence-aware possible symptoms, and route serious or uncertain cases to expert help. Define evidence thresholds for 3-, 6-, and 12-month milestones and normalized community scores.
+**Photo observation assistance implemented locally:** image quality and possible
+colour/user-reported symptom flags are clearly marked as unvalidated and
+low-confidence, with no diagnosis, probability or chemical/dose advice. Serious
+or uncertain cases route to the 16123 agricultural help path. A validated vision
+model remains future work. Self-reported care streaks, 3-, 6-, and 12-month
+milestone cards, capped average per-plant scoring, moderated text posts, reports,
+and k-anonymous district trends are implemented in revision0009. They do not
+verify survival, expose exact locations, publish photos, or reward raw plant
+counts.
 
-**Done when:** the product never presents a vision guess as certain or a photo as complete proof of care.
+**Done when:** the product never presents a vision guess as certain or a photo as complete proof of care; community content is approved before it is visible.
 
 ## 6. Pilot and impact
 

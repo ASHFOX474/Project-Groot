@@ -308,7 +308,7 @@ python3 scripts/smoke_api.py
 
 Keep Docker Desktop running. First startup builds/downloads images, initializes
 the private PostgreSQL volume and migrates before starting the API. `check`
-should report `0005`; seed inserts the two demo entries without overwriting rows.
+should report `0009`; seed inserts the two demo entries without overwriting rows.
 The smoke script should report PASS. No init SQL needs to be manually executed.
 
 Visit `http://127.0.0.1:8000/docs` for the backend API docs, not the mobile preview.
@@ -358,7 +358,44 @@ private versions and revisions. Explicit saving stores structured conditions and
 chosen location, not free goal/soil prose. No approved care guidance is bundled,
 so demo/draft catalog rows correctly provide no care advice. See
 [care preview, saving and content review](CARE_PLANS.md). Existing database users
-must back up/rehearse restore before upgrading to0005; never reset the volume.
+must back up/rehearse restore before upgrading to0009; never reset the volume.
+
+### Offline care preview
+
+In the Android emulator (not macOS), set your own screen-lock credential in
+**Settings → Security & privacy → Device unlock → Screen lock**. Groot never
+reads the PIN and refuses offline storage when no device lock is set.
+
+Sign in while online → account screen's top-right **Offline care** icon → unlock
+with Android → read the separate storage notice → **Enable offline care** →
+**Download / refresh plans and plants**. Then disconnect/restart, reopen that icon,
+unlock and view downloaded plans or **Record care**. Entries show `pending` until
+accepted by the server. Later reconnect, sign in to the original account/server,
+open/unlock the notebook and choose **Sync now** (foreground retries also run).
+
+No approved care plans are bundled; downloading an empty plan list is expected,
+not a reason to approve demo rows. Existing passports can still be downloaded and
+care logged offline. Guidance is labelled cached/unverified and withheld after24h
+or known expiry; there is no offline weather/advice generation. Device access
+auto-locks after five minutes/backgrounding. Unsynced care is not backed up and
+must not be silently erased. See [full offline setup/privacy/conflicts](OFFLINE_CARE.md).
+
+### Care quests, weather and reminders
+
+After a reviewed plan is saved, open it and choose **Care quests & weather**.
+Daily observations and weekly instruction reviews can be completed/undone. Draft
+or demo catalog rows do not make recommendations/plans; approved content remains
+pending, so an empty plan list is expected until proper review/import.
+
+Weather is off by default. Read [provider privacy/terms and enablement](QUESTS_WEATHER_REMINDERS.md)
+before setting `WEATHER_MODE=open-meteo-noncommercial` in private `.env`, then
+recreate the API. Users also opt in separately using a saved supported district.
+No GPS or automatic irrigation changes. Old/unavailable weather is visibly marked.
+
+Use **Set daily device reminder** for a generic Android prompt; notification
+permission is optional. It uses device-local time and may be delayed; foreground
+pending-task reminders work without OS permission. Sign-out/app restart cancels
+the device alarm; re-enable when needed. No background forecast refresh.
 
 ## Preview with VS Code F5 instead
 

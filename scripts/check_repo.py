@@ -50,6 +50,30 @@ REQUIRED = (
     "services/api/migrations/versions/0003_reviewed_catalog.py",
     "services/api/migrations/versions/0004_accounts_passports.py",
     "services/api/migrations/versions/0005_grounded_care_plans.py",
+    "services/api/migrations/versions/0006_quests_weather.py",
+    "services/api/app/quests.py", "services/api/app/weather.py",
+    "services/api/app/quest_repository.py", "services/api/tests/test_quests.py",
+    "services/api/tests/test_weather.py", "services/api/tests/integration/test_quests.py",
+    "apps/mobile/lib/quest_board.dart", "apps/mobile/lib/quest_models.dart",
+    "apps/mobile/lib/care_reminders.dart", "apps/mobile/test/quests_test.dart",
+    "apps/mobile/test/care_reminders_test.dart",
+    "apps/mobile/integration_test/quests_smoke_test.dart",
+    "apps/mobile/android/app/src/main/kotlin/bd/groot/groot_app/CareReminder.kt",
+    "docs/QUESTS_WEATHER_REMINDERS.md",
+    "services/api/migrations/versions/0007_offline_care.py",
+    "services/api/migrations/versions/0008_private_photos.py",
+    "services/api/migrations/versions/0009_rewards_community.py",
+    "services/api/tests/integration/test_offline_care.py",
+    "apps/mobile/lib/offline_care.dart", "apps/mobile/lib/offline_care_view.dart",
+    "apps/mobile/test/offline_care_test.dart",
+    "apps/mobile/integration_test/offline_care_smoke_test.dart",
+    "apps/mobile/android/app/src/main/kotlin/bd/groot/groot_app/OfflineCareVault.kt",
+    "docs/OFFLINE_CARE.md", "docs/testing/offline-care.tdd.md",
+    "services/api/app/rewards.py", "services/api/app/community.py",
+    "services/api/app/community_repository.py", "services/api/tests/test_rewards.py",
+    "services/api/tests/integration/test_rewards_community.py",
+    "apps/mobile/lib/rewards_community.dart", "apps/mobile/test/rewards_community_test.dart",
+    "docs/testing/rewards-community.tdd.md",
     "services/api/catalog/bangladesh-starter-v1.json",
     "services/api/catalog/treegoer-access-evidence.json",
     "services/api/tests/integration/conftest.py",
@@ -76,6 +100,7 @@ def forbidden(name):
         or any(part in {".dart_tool", ".gradle", ".venv", "__pycache__", ".pytest_cache"}
                for part in path.parts)
         or name.startswith("apps/mobile/build/")
+        or name.startswith("apps/mobile/coverage/")
         or (path.name.startswith(".env") and path.name != ".env.example")
         or path.name in {"local.properties", "key.properties", "GeneratedPluginRegistrant.java"}
         or path.suffix in {".jks", ".keystore", ".p12"}
