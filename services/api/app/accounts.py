@@ -113,7 +113,7 @@ class PassportInput(StrictModel):
         return value
 
 
-class CareInput(StrictModel):
+class CareFields(StrictModel):
     kind: Literal['watering', 'feeding', 'pruning', 'repotting', 'observation']
     occurred_on: date
     note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=1000)] = ''
@@ -122,6 +122,12 @@ class CareInput(StrictModel):
     @classmethod
     def not_future(cls, value):
         return PassportInput.not_future(value)
+
+
+class CareInput(CareFields):
+    # Optional for old online clients. Offline clients must persist this UUID
+    # before sending; it is scoped to the authenticated owner, not a caller owner.
+    request_id: UUID | None = None
 
 
 class AccountResponse(StrictModel):
@@ -143,7 +149,7 @@ class PassportResponse(PassportInput):
     # Dates written by the DB are serialized by FastAPI, without secrets/ownership fields.
 
 
-class CareResponse(CareInput):
+class CareResponse(CareFields):
     id: UUID
 
 
@@ -289,6 +295,12 @@ class AccountRepository(CatalogRepository):
                              (value.choices.location_opt_in, value.choices.community_opt_in,
                               value.choices.impact_opt_in, value.notice_version, owner['id'])).fetchone()
             self._consent_receipt(db, owner['id'], value.choices, value.notice_version)
+            if not value.choices.community_opt_in:
+                # Withdrawn community participation is hidden immediately and the
+                # district is removed from retained post metadata. Account deletion
+                # remains the path for deleting the account's full record set.
+                db.execute("UPDATE community_post SET status='hidden',district=NULL WHERE owner_id=%s", (owner['id'],))
+                db.execute('DELETE FROM community_profile WHERE account_id=%s', (owner['id'],))
             return public_account(row)
 
     def change_password(self, token, value):
@@ -347,6 +359,9 @@ class AccountRepository(CatalogRepository):
                 if db.execute('SELECT 1 FROM plant_care_event WHERE passport_id=%s AND occurred_on<%s LIMIT 1',
                               (passport_id, value.planted_on)).fetchone():
                     raise HTTPException(422, 'Planting date cannot be after existing care history')
+                if db.execute('SELECT 1 FROM plant_photo WHERE passport_id=%s AND observed_on<%s LIMIT 1',
+                              (passport_id, value.planted_on)).fetchone():
+                    raise HTTPException(422, 'Planting date cannot be after existing photo history')
             self._species(db, value.species_id)
             values = (value.nickname, value.species_name, value.species_id,
                       value.planted_on, Jsonb(value.conditions.model_dump()))
@@ -380,11 +395,20 @@ class AccountRepository(CatalogRepository):
         with self._connect() as db:
             owner = self._owner(db, token)['id']
             plant = self._passport(db, owner, passport_id)
+            if value.request_id is not None:
+                previous = db.execute('''SELECT * FROM plant_care_event
+                    WHERE owner_id=%s AND request_id=%s''', (owner, value.request_id)).fetchone()
+                if previous is not None:
+                    if (str(previous['passport_id']) != str(passport_id) or
+                        (previous['kind'], previous['occurred_on'], previous['note']) !=
+                        (value.kind, value.occurred_on, value.note)):
+                        raise HTTPException(409, 'Care operation conflicts with its original record')
+                    return {key: previous[key] for key in CareResponse.model_fields}
             if value.occurred_on < plant['planted_on']:
                 raise HTTPException(422, 'Care date cannot be before planting')
-            row = db.execute('''INSERT INTO plant_care_event(id,passport_id,owner_id,kind,occurred_on,note)
-                                  VALUES (%s,%s,%s,%s,%s,%s) RETURNING *''',
-                              (uuid4(), passport_id, owner, value.kind, value.occurred_on, value.note)).fetchone()
+            row = db.execute('''INSERT INTO plant_care_event(id,passport_id,owner_id,kind,occurred_on,note,request_id)
+                                  VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING *''',
+                              (uuid4(), passport_id, owner, value.kind, value.occurred_on, value.note, value.request_id)).fetchone()
             return {key: row[key] for key in CareResponse.model_fields}
 
 
