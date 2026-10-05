@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'care_models.dart';
 import 'goal_models.dart';
 import 'private_api.dart';
+import 'quest_board.dart';
 
 String newCareRequestId() {
   final random = Random.secure();
@@ -298,6 +299,15 @@ class _CarePlanViewState extends State<CarePlanView> {
                           : t('নতুন সংস্করণ সংরক্ষণ', 'Save new version'))),
               ],
               if (_saved != null) ...[
+                if (widget.versionNumber == null)
+                  FilledButton(
+                      key: const Key('care-quests'),
+                      onPressed: _busy ? null : () async {
+                        final expired = await Navigator.push<bool>(context,
+                            MaterialPageRoute(builder: (_) => QuestBoard(api: widget.api, planId: _saved!.id)));
+                        if (mounted && expired == true) Navigator.pop(this.context, true);
+                      },
+                      child: Text(t('যত্নের কাজ ও আবহাওয়া', 'Care quests & weather'))),
                 if (widget.versionNumber == null && widget.onRevise != null)
                   OutlinedButton(
                       onPressed: _busy
