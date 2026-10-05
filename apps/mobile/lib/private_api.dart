@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'goal_models.dart';
 import 'care_models.dart';
+import 'quest_models.dart';
+import 'rewards_community.dart';
 
 const privacyNoticeVersion = '2026-10-04';
 
@@ -13,9 +15,11 @@ DateTime bangladeshToday() {
 }
 
 class PrivateApiException implements Exception {
-  const PrivateApiException(this.message, {this.signedOut = false});
+  const PrivateApiException(this.message,
+      {this.signedOut = false, this.statusCode});
   final String message;
   final bool signedOut;
+  final int? statusCode;
 }
 
 class ConsentChoices {
@@ -93,13 +97,22 @@ class CareEvent {
 }
 
 class PrivateApi {
-  PrivateApi({http.Client? client, String? baseUrl})
+  PrivateApi({http.Client? client, String? baseUrl, this.onSessionCleared})
       : _client = client ?? http.Client(),
         _baseUrl = baseUrl ??
             const String.fromEnvironment('API_BASE_URL',
                 defaultValue: 'http://10.0.2.2:8000');
   final http.Client _client;
   final String _baseUrl;
+  final Future<void> Function()? onSessionCleared;
+  String? currentOwnerId;
+  String get baseUrl => _baseUrl;
+
+  Future<void> _clearDeviceSession() async {
+    currentOwnerId = null;
+    await onSessionCleared?.call();
+  }
+
   // Deliberately memory-only. App restart requires sign-in; no token/password is
   // written to preferences, files, URLs or logs. Persistence needs secure storage.
   String? _token;
@@ -121,22 +134,37 @@ class PrivateApi {
         .timeout(const Duration(seconds: 15));
     if (response.statusCode == 401) {
       _token = null;
+      await _clearDeviceSession();
       throw const PrivateApiException(
           'Sign in again; check your handle and password.',
           signedOut: true);
     }
     if (response.statusCode >= 400) {
-      throw PrivateApiException(switch (response.statusCode) {
-        409 => path.startsWith('plans')
-            ? 'Plan unavailable or changed. Preview/reload reviewed guidance before saving.'
-            : 'Handle unavailable. Choose another.',
-        422 => path.startsWith('goals/') || path.startsWith('plans')
-            ? 'Check the goal, chosen location and measurements.'
-            : 'Check the fields and dates. Demo species cannot be linked.',
-        429 => 'Too many attempts. Please wait before trying again.',
-        404 => 'This plant is unavailable.',
-        _ => 'Service unavailable. Try again later.',
-      });
+      throw PrivateApiException(
+          switch (response.statusCode) {
+            403 =>
+              'Feature consent or secure access is required. Refresh your choices.',
+            413 => 'Photo/request too large. Choose a smaller JPEG or PNG.',
+            409 => path.contains('/photo')
+                ? 'Photo consent, retry record or capacity changed. Refresh the timeline; do not create a duplicate retry.'
+                : path.contains('/community')
+                    ? 'Community profile or moderation state changed. Refresh and try again.'
+                : path.startsWith('plans')
+                    ? 'Plan unavailable or changed. Preview/reload reviewed guidance before saving.'
+                    : path.contains('/care')
+                        ? 'Care operation changed. Review it; existing care was not overwritten.'
+                        : 'Handle unavailable. Choose another.',
+            422 => path.startsWith('goals/') || path.startsWith('plans')
+                ? 'Check the goal, chosen location and measurements.'
+                : 'Check the fields and dates. Demo species cannot be linked.',
+            429 => 'Too many attempts. Please wait before trying again.',
+            404 => 'This plant is unavailable.',
+            _ => 'Service unavailable. Try again later.',
+          },
+          statusCode: response.statusCode);
+    }
+    if (response.headers['content-type']?.startsWith('image/jpeg') == true) {
+      return response.bodyBytes;
     }
     return response.statusCode == 204
         ? null
@@ -154,6 +182,7 @@ class PrivateApi {
       if (register) 'choices': choices.toJson(),
     }) as Map<String, dynamic>;
     _token = result['access_token'] as String;
+    currentOwnerId = (result['account'] as Map)['id'] as String?;
     return GrowerAccount.fromJson(result['account'] as Map<String, dynamic>);
   }
 
@@ -168,6 +197,7 @@ class PrivateApi {
       await _request('POST', 'accounts/logout');
     } finally {
       _token = null;
+      await _clearDeviceSession();
     }
   }
 
@@ -175,11 +205,13 @@ class PrivateApi {
     await _request('POST', 'accounts/password',
         {'current_password': current, 'new_password': replacement});
     _token = null;
+    await _clearDeviceSession();
   }
 
   Future<void> deleteAccount(String password) async {
     await _request('POST', 'accounts/delete', {'password': password});
     _token = null;
+    await _clearDeviceSession();
   }
 
   Future<List<PlantPassport>> plants({String? after}) async {
@@ -215,6 +247,56 @@ class PrivateApi {
     await _request('POST', 'passports/$id/care',
         {'kind': kind, 'occurred_on': date, 'note': note});
   }
+
+  /// Explicit offline sync still requires a live, owner-checked bearer session.
+  Future<String> verifyOwner() async {
+    final account =
+        await _request('GET', 'accounts/me') as Map<String, dynamic>;
+    return account['id'] as String;
+  }
+
+  Future<Map<String, dynamic>> photoConsent(String plant) async =>
+      await _request('GET', 'passports/$plant/photo-consent')
+          as Map<String, dynamic>;
+  Future<void> setPhotoConsent(String plant, bool storage, bool health) async {
+    await _request('PUT', 'passports/$plant/photo-consent', {
+      'storage': storage,
+      'health': health,
+      'notice_version': '2026-10-05-photos-v1'
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> photos(String plant,
+      {String? after}) async {
+    final rows = await _request('GET',
+            'passports/$plant/photos?limit=20${after == null ? '' : '&after=$after'}')
+        as List;
+    return rows.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> uploadPhoto(String plant, Map<String, dynamic> payload) async {
+    await _request('POST', 'passports/$plant/photos', payload);
+  }
+
+  Future<Uint8List> photoImage(String plant, String id) async =>
+      await _request('GET', 'passports/$plant/photos/$id/image') as Uint8List;
+  Future<void> deletePhoto(String plant, String id) async {
+    await _request('DELETE', 'passports/$plant/photos/$id');
+  }
+
+  Future<String> syncCare(Map<String, dynamic> operation) async {
+    final result =
+        await _request('POST', 'passports/${operation['passport_id']}/care', {
+      'request_id': operation['request_id'],
+      'kind': operation['kind'],
+      'occurred_on': operation['occurred_on'],
+      'note': operation['note']
+    }) as Map<String, dynamic>;
+    return result['id'] as String;
+  }
+
+  Future<Map<String, dynamic>> planSnapshot(String id) async =>
+      await _request('GET', 'plans/$id') as Map<String, dynamic>;
 
   Future<GoalAssessment> recommend(GoalDraft goal) async => GoalAssessment(
       await _request('POST', 'goals/recommendations', goal.toJson())
@@ -270,8 +352,68 @@ class PrivateApi {
     await _request('DELETE', 'plans/$id');
   }
 
+  Future<QuestData> quests(String id) async => QuestData(
+      await _request('GET', 'plans/$id/quests') as Map<String, dynamic>);
+
+  Future<QuestData> completeQuest(
+          String id, int version, String key, bool completed) async =>
+      QuestData(await _request('POST', 'plans/$id/quests/completion', {
+        'version': version,
+        'key': key,
+        'completed': completed
+      }) as Map<String, dynamic>);
+
+  Future<void> questWeather(String id, bool enabled) async {
+    await _request('PUT', 'plans/$id/quests/weather',
+        {'enabled': enabled, 'notice_version': 'weather-2026-10-05'});
+  }
+
+  Future<RewardsSummary> rewards() async =>
+      RewardsSummary(await _request('GET', 'rewards') as Map<String, dynamic>);
+
+  Future<CommunityProfile?> communityProfile() async {
+    final value = await _request('GET', 'community/profile');
+    return value == null
+        ? null
+        : CommunityProfile(value as Map<String, dynamic>);
+  }
+
+  Future<CommunityProfile> saveCommunityProfile(
+          String district, String publicAlias) async =>
+      CommunityProfile(await _request('PUT', 'community/profile', {
+        'district': district,
+        'public_alias': publicAlias,
+        'notice_version': 'community-2026-10-06'
+      }) as Map<String, dynamic>);
+
+  Future<List<CommunityPost>> communityFeed({String? after}) async =>
+      (await _request('GET',
+              'community/feed?limit=20${after == null ? '' : '&after=$after'}')
+          as List)
+      .map((x) => CommunityPost(x as Map<String, dynamic>))
+      .toList(growable: false);
+
+  Future<CommunityPost> createCommunityPost(String topic, String body) async =>
+      CommunityPost(await _request('POST', 'community/posts', {
+        'topic': topic,
+        'body': body,
+      }) as Map<String, dynamic>);
+
+  Future<CommunityReportResponse> reportCommunityPost(
+          String id, String reason, String details) async =>
+      CommunityReportResponse(await _request('POST', 'community/posts/$id/report', {
+        'reason': reason,
+        'details': details,
+      }) as Map<String, dynamic>);
+
+  Future<NeighborhoodSummary> communityNeighborhood() async =>
+      NeighborhoodSummary(await _request('GET', 'community/neighborhood')
+          as Map<String, dynamic>);
+
   void close() {
     _token = null;
+    currentOwnerId = null;
+    onSessionCleared?.call();
     _client.close();
   }
 }

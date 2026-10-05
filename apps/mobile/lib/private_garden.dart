@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'private_api.dart';
 import 'goal_intake.dart';
 import 'saved_care_plans.dart';
+import 'care_reminders.dart';
+import 'offline_care_view.dart';
+import 'photo_checkins.dart';
+import 'rewards_community.dart';
 
 const _privacyNotice =
     'Your handle, password hash, consent choices and plant records are stored '
     'in this project’s database. Plants and care history are private to your account. '
-    'No GPS, photos, analytics or public sharing are collected by this version. '
+    'No GPS or precise location is collected. Community sharing is optional, moderated text only. Private photo check-ins '
+    'are a separate opt-in and remain off until you enable them for a plant. '
     'Optional choices are off by default and editable. Use test data on the local HTTP preview. '
     'No email recovery exists yet. Keep your password safely; restarting the app requires sign-in.';
 
@@ -19,7 +24,8 @@ class PrivateGarden extends StatefulWidget {
 }
 
 class _PrivateGardenState extends State<PrivateGarden> {
-  late final PrivateApi _api = widget.api ?? PrivateApi();
+  late final PrivateApi _api =
+      widget.api ?? PrivateApi(onSessionCleared: CareReminders.cancel);
   GrowerAccount? _account;
   List<PlantPassport> _plants = [];
   bool _busy = false;
@@ -101,7 +107,25 @@ class _PrivateGardenState extends State<PrivateGarden> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('আমার গাছ · Plant Passports')),
+        appBar:
+            AppBar(title: const Text('আমার গাছ · Plant Passports'), actions: [
+          IconButton(
+              tooltip: 'Offline care',
+              icon: const Icon(Icons.offline_pin_outlined),
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      await Navigator.push<void>(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => OfflineCareView(api: _api)));
+                      if (mounted &&
+                          _api.currentOwnerId == null &&
+                          _account != null) {
+                        _clear();
+                      }
+                    })
+        ]),
         body: SafeArea(
             child: _account == null
                 ? _SignInForm(
@@ -164,6 +188,22 @@ class _PrivateGardenState extends State<PrivateGarden> {
                               },
                         icon: const Icon(Icons.history),
                         label: const Text('যত্ন পরিকল্পনা · Saved care plans')),
+                    TextButton.icon(
+                        onPressed: _busy
+                            ? null
+                            : () async {
+                                final expired = await Navigator.of(context)
+                                    .push<bool>(MaterialPageRoute(
+                                        builder: (_) => RewardsCommunity(
+                                              api: _api,
+                                              communityEnabled:
+                                                  _account?.choices.community ?? false,
+                                              openSettings: _settings,
+                                            )));
+                                if (mounted && expired == true) _clear();
+                              },
+                        icon: const Icon(Icons.emoji_events_outlined),
+                        label: const Text('পুরস্কার ও কমিউনিটি · Rewards and community')),
                     if (_busy) const LinearProgressIndicator(),
                     if (_error != null) Text(_error!, semanticsLabel: _error),
                     TextButton(
@@ -647,6 +687,21 @@ class _PassportDetailState extends State<_PassportDetail> {
         if (_error != null) Text(_error!),
         Wrap(spacing: 8, children: [
           TextButton(
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      final expired = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => PhotoCheckins(
+                                  api: widget.api, plant: _plant)));
+                      if (expired == true && mounted) {
+                        widget.signedOut();
+                        Navigator.pop(this.context);
+                      }
+                    },
+              child: const Text('Private photos')),
+          TextButton(
               onPressed: _busy ? null : () => _run(() => _load()),
               child: const Text('Refresh history')),
           TextButton(
@@ -708,7 +763,7 @@ class _PassportDetailState extends State<_PassportDetail> {
                     final event = await Navigator.of(context).push<CareEvent>(
                         MaterialPageRoute(
                             builder: (_) =>
-                                _CareForm(plantedOn: _plant.plantedOn)));
+                                CareForm(plantedOn: _plant.plantedOn)));
                     if (event == null || !mounted) return;
                     await _run(() async {
                       await widget.api.addCare(
@@ -720,14 +775,14 @@ class _PassportDetailState extends State<_PassportDetail> {
       ])));
 }
 
-class _CareForm extends StatefulWidget {
-  const _CareForm({required this.plantedOn});
+class CareForm extends StatefulWidget {
+  const CareForm({super.key, required this.plantedOn});
   final String plantedOn;
   @override
-  State<_CareForm> createState() => _CareFormState();
+  State<CareForm> createState() => _CareFormState();
 }
 
-class _CareFormState extends State<_CareForm> {
+class _CareFormState extends State<CareForm> {
   final _note = TextEditingController();
   String _kind = 'watering';
   String _date = bangladeshToday().toIso8601String().substring(0, 10);
