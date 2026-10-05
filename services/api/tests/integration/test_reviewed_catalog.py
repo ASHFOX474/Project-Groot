@@ -133,10 +133,10 @@ def test_pending_import_and_checked_in_drafts_never_become_candidates(database_u
     assert not result['already_imported']
     assert query(database_url, 'SELECT count(*) FROM plant_requirement') == [(11,)]
     assert CatalogRepository(database_url).list_recommendation_candidates() == []
-    with pytest.raises(RuntimeError, match='would delete private records'):
+    with pytest.raises(RuntimeError, match='community'):
         run('downgrade', database_url, '0002', confirm=True)
     assert query(database_url, 'SELECT count(*) FROM plant_requirement') == [(11,)]
-    assert run('current', database_url) == ('0005',)
+    assert run('current', database_url) == ('0009',)
 
 
 def test_import_requires_migration_head(database_url):

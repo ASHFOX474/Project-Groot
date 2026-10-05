@@ -181,9 +181,9 @@ def test_explicit_delete_removes_only_owned_private_records(client, database_url
         assert db.execute('SELECT count(*) FROM plant_passport').fetchone()[0] == 0
         assert db.execute('SELECT count(*) FROM plant_care_event').fetchone()[0] == 0
         assert db.execute('SELECT count(*) FROM species').fetchone()[0] == 2
-    with pytest.raises(RuntimeError, match='would delete private records'):
+    with pytest.raises(RuntimeError, match='community'):
         run('downgrade', database_url, '0003', confirm=True)
-    assert run('current', database_url) == ('0005',)
+    assert run('current', database_url) == ('0009',)
 
 
 def test_rate_limits_are_committed_even_when_requests_fail(client, database_url):

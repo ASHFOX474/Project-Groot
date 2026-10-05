@@ -32,18 +32,18 @@ def test_fresh_upgrade_idempotency_and_explicit_demo_seed(database_url):
     assert run('current', database_url) == ()
     with pytest.raises(RuntimeError, match='not at migration head'):
         run('check', database_url)
-    assert run('upgrade', database_url) == ('0005',)
+    assert run('upgrade', database_url) == ('0009',)
     assert query(database_url, 'SELECT count(*) FROM species') == [(0,)]
     seed_demo(database_url)
     before = snapshot(database_url)
     run('upgrade', database_url)
     seed_demo(database_url)
     assert snapshot(database_url) == before
-    assert run('check', database_url) == ('0005',)
+    assert run('check', database_url) == ('0009',)
     assert query(database_url, "SELECT indexname FROM pg_indexes WHERE indexname='species_source_id_idx'")
-    with pytest.raises(RuntimeError, match='would delete private records'):
+    with pytest.raises(RuntimeError, match='community'):
         run('downgrade', database_url, 'base', confirm=True)
-    assert run('current', database_url) == ('0005',)
+    assert run('current', database_url) == ('0009',)
     assert query(database_url, "SELECT indexname FROM pg_indexes WHERE indexname='species_source_id_idx'")
     assert snapshot(database_url) == before
 
@@ -117,10 +117,10 @@ def test_failed_migration_rolls_back_schema_and_version(database_url, tmp_path, 
     source = Path(config().get_main_option('script_location'))
     destination = tmp_path / 'migrations'
     shutil.copytree(source, destination)
-    (destination / 'versions' / '0006_failure.py').write_text('''
+    (destination / 'versions' / '0010_failure.py').write_text('''
 from alembic import op
-revision = "0006"
-down_revision = "0005"
+revision = "0010"
+down_revision = "0009"
 def upgrade():
     op.execute("CREATE TABLE public.should_not_survive (id integer)")
     op.execute("UPDATE public.species SET common_name_bn='changed'")
@@ -133,7 +133,7 @@ def downgrade():
     monkeypatch.setattr(migrations, 'config', lambda: cfg)
     with pytest.raises(sa.exc.DBAPIError):
         run('upgrade', database_url)
-    assert run('current', database_url) == ('0005',)
+    assert run('current', database_url) == ('0009',)
     assert query(database_url, "SELECT to_regclass('public.should_not_survive')") == [(None,)]
     assert snapshot(database_url) == before
 
@@ -145,7 +145,7 @@ def test_concurrent_migration_is_refused(database_url):
             future = pool.submit(run, 'upgrade', database_url)
             with pytest.raises(RuntimeError, match='Another Groot migration'):
                 future.result(timeout=10)
-    assert run('upgrade', database_url) == ('0005',)
+    assert run('upgrade', database_url) == ('0009',)
 
 
 @pytest.mark.parametrize('statement,error', [

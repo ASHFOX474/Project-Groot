@@ -228,9 +228,9 @@ def test_atomic_upgrade_preserves_catalog_and_private_rows_and_old_manifest_hash
     with psycopg.connect(database_url) as db:
         assert db.execute('SELECT handle,password_hash FROM grower_account WHERE id=%s',(account,)).fetchone() == ('retained','TEST HASH')
         assert db.execute('SELECT count(*) FROM plant_care_guidance').fetchone()[0] == 0
-    with pytest.raises(RuntimeError, match='would delete private records'):
+    with pytest.raises(RuntimeError, match='community'):
         run('downgrade', database_url, '0004', confirm=True)
-    assert run('current', database_url) == ('0005',)
+    assert run('current', database_url) == ('0009',)
 
 
 def test_plan_input_redaction_tls_bounds_and_invalid_evidence(client, database_url, monkeypatch):

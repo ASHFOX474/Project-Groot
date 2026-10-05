@@ -5,7 +5,7 @@ from app import migrations, seed_demo
 
 
 def test_single_migration_head():
-    assert head_revision() == "0005"
+    assert head_revision() == "0009"
     assert config().get_main_option("script_location").endswith("/migrations")
 
 

@@ -11,6 +11,15 @@ from app.accounts import (AccountDelete, AccountRepository, AccountResponse, Car
 from app.goal_models import GoalInput, GoalResult
 from app.care_models import PlanRequest, SavePlanRequest, RevisePlanRequest, PlanPreview, PlanVersion, PlanSummary, VersionSummary
 from app.care_repository import CarePlanRepository, get_care_repository
+from app.quest_repository import QuestRepository, get_quest_repository
+from app.quests import QuestBoard, QuestCompletion, WeatherPreference
+from app.photos import PhotoConsent, PhotoConsentState, PhotoInput, PhotoSummary
+from app.photo_repository import PhotoRepository, get_photo_repository
+from app.community import (CommunityPost, CommunityPostInput, CommunityProfile,
+                           CommunityProfileInput, CommunityReportInput, CommunityReportResponse,
+                           LeaderboardEntry, ModerationInput, NeighborhoodSummary)
+from app.community_repository import CommunityRepository, get_community_repository
+from app.rewards import RewardsSummary
 
 router = APIRouter(prefix='/v1', tags=['Private accounts and Plant Passports'])
 Repository = Annotated[AccountRepository, Depends(get_account_repository)]
@@ -25,6 +34,9 @@ def session_token(value: Annotated[HTTPAuthorizationCredentials | None, Depends(
 
 Token = Annotated[str, Depends(session_token)]
 CareRepository = Annotated[CarePlanRepository, Depends(get_care_repository)]
+QuestRepo = Annotated[QuestRepository, Depends(get_quest_repository)]
+PhotoRepo = Annotated[PhotoRepository, Depends(get_photo_repository)]
+CommunityRepo = Annotated[CommunityRepository, Depends(get_community_repository)]
 
 
 def private_limit(request: Request, repo: Repository):
@@ -177,6 +189,115 @@ def plan(plan_id: UUID, token: Token, repo: CareRepository):
 def delete_plan(plan_id: UUID, token: Token, repo: CareRepository):
     care_result(lambda: repo.delete(token, plan_id))
     return Response(status_code=204)
+
+
+@private.get('/plans/{plan_id}/quests', response_model=QuestBoard)
+def quests(plan_id: UUID, token: Token, repo: QuestRepo,
+           days: Annotated[int,Query(ge=1,le=7)] = 1):
+    return care_result(lambda: repo.board(token,plan_id,days))
+
+
+@private.post('/plans/{plan_id}/quests/completion', response_model=QuestBoard)
+def complete_quest(plan_id: UUID, value: QuestCompletion, token: Token, repo: QuestRepo):
+    return care_result(lambda: repo.complete(token,plan_id,value))
+
+
+@private.put('/plans/{plan_id}/quests/weather', response_model=dict)
+def quest_weather(plan_id: UUID, value: WeatherPreference, token: Token, repo: QuestRepo):
+    return care_result(lambda: repo.preference(token,plan_id,value))
+
+
+@private.get('/passports/{passport_id}/photo-consent', response_model=PhotoConsentState)
+def photo_consent(passport_id: UUID, token: Token, repo: PhotoRepo):
+    return repo.consent(token, passport_id)
+
+
+@private.put('/passports/{passport_id}/photo-consent', response_model=PhotoConsentState)
+def set_photo_consent(passport_id: UUID, value: PhotoConsent, token: Token, repo: PhotoRepo):
+    return repo.consent(token, passport_id, value)
+
+
+@private.get('/passports/{passport_id}/photos', response_model=list[PhotoSummary])
+def photos(passport_id: UUID, token: Token, repo: PhotoRepo, after: UUID | None = None,
+           limit: Annotated[int, Query(ge=1, le=20)] = 20):
+    return repo.list(token, passport_id, after, limit)
+
+
+@private.post('/passports/{passport_id}/photos', response_model=PhotoSummary, status_code=201)
+def upload_photo(passport_id: UUID, value: PhotoInput, token: Token, repo: PhotoRepo):
+    owner = repo.me(token)['id']
+    repo.throttle('photo-owner', str(owner), 10, 60)
+    return repo.upload(token, passport_id, value)
+
+
+@private.get('/passports/{passport_id}/photos/{photo_id}/image')
+def photo_image(passport_id: UUID, photo_id: UUID, token: Token, repo: PhotoRepo):
+    return Response(repo.photo(token, passport_id, photo_id), media_type='image/jpeg')
+
+
+@private.delete('/passports/{passport_id}/photos/{photo_id}', status_code=204)
+def delete_photo(passport_id: UUID, photo_id: UUID, token: Token, repo: PhotoRepo):
+    repo.photo(token, passport_id, photo_id, delete=True)
+    return Response(status_code=204)
+
+
+@private.get('/rewards', response_model=RewardsSummary)
+def rewards(token: Token, repo: CommunityRepo):
+    return repo.rewards(token)
+
+
+@private.get('/community/profile', response_model=CommunityProfile | None)
+def community_profile(token: Token, repo: CommunityRepo):
+    return repo.profile(token)
+
+
+@private.put('/community/profile', response_model=CommunityProfile)
+def save_community_profile(value: CommunityProfileInput, token: Token, repo: CommunityRepo):
+    return repo.save_profile(token, value)
+
+
+@private.get('/community/feed', response_model=list[CommunityPost])
+def community_feed(token: Token, repo: CommunityRepo, after: UUID | None = None,
+                   limit: Annotated[int, Query(ge=1, le=50)] = 20):
+    return repo.feed(token, after, limit)
+
+
+@private.post('/community/posts', response_model=CommunityPost, status_code=201)
+def create_community_post(value: CommunityPostInput, token: Token, repo: CommunityRepo):
+    return repo.create_post(token, value)
+
+
+@private.delete('/community/posts/{post_id}', status_code=204)
+def delete_community_post(post_id: UUID, token: Token, repo: CommunityRepo):
+    repo.delete_post(token, post_id)
+    return Response(status_code=204)
+
+
+@private.post('/community/posts/{post_id}/report', response_model=CommunityReportResponse)
+def report_community_post(post_id: UUID, value: CommunityReportInput, token: Token, repo: CommunityRepo):
+    return repo.report(token, post_id, value)
+
+
+@private.get('/community/leaderboard', response_model=list[LeaderboardEntry])
+def community_leaderboard(token: Token, repo: CommunityRepo,
+                          limit: Annotated[int, Query(ge=1, le=20)] = 10):
+    return repo.leaderboard(token, limit)
+
+
+@private.get('/community/neighborhood', response_model=NeighborhoodSummary)
+def community_neighborhood(token: Token, repo: CommunityRepo):
+    return repo.neighborhood(token)
+
+
+@private.get('/community/moderation/queue', response_model=list[CommunityPost])
+def community_moderation_queue(token: Token, repo: CommunityRepo,
+                               limit: Annotated[int, Query(ge=1, le=100)] = 50):
+    return repo.moderation_queue(token, limit)
+
+
+@private.post('/community/moderation/{post_id}', response_model=CommunityPost)
+def moderate_community_post(post_id: UUID, value: ModerationInput, token: Token, repo: CommunityRepo):
+    return repo.moderate(token, post_id, value)
 
 
 router.include_router(private)
