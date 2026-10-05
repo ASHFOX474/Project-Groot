@@ -12,6 +12,7 @@ apps/mobile/.dart_tool/
 apps/mobile/.flutter-plugins*
 apps/mobile/.packages
 apps/mobile/build/
+apps/mobile/coverage/
 apps/mobile/android/.gradle/
 apps/mobile/android/local.properties
 apps/mobile/ios/Flutter/Generated.xcconfig

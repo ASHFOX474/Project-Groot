@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Groot · Android demo",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "toolArgs": ["--dart-define=API_BASE_URL=http://10.0.2.2:8000"]
+    }
+  ]
+}
